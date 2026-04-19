@@ -7,10 +7,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="נשמות">
   <meta name="theme-color" content="#1A2744">
-  <title>נשמות — שידוך חכם</title>
+  <title>נשמות — שידוך חכם וצנוע</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
+    /* עיצוב בסיסי ומערכת צבעים */
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root {
       --gold: #C9A84C; --gold-light: #E8D5A3; --gold-dark: #8B6914;
@@ -19,236 +20,58 @@
       --border: rgba(201,168,76,0.3); --card-bg: rgba(255,252,245,0.97);
     }
     html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: 'Heebo', sans-serif;
-      background: var(--cream);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-    }
+    body { font-family: 'Heebo', sans-serif; background: var(--cream); color: var(--text); display: flex; flex-direction: column; }
 
-    /* TOP HEADER */
-    .top-bar {
-      background: var(--navy);
-      color: #fff;
-      text-align: center;
-      padding: 14px 16px 10px;
-      flex-shrink: 0;
-    }
+    /* תפריט עליון */
+    .top-bar { background: var(--navy); color: #fff; text-align: center; padding: 14px 16px 10px; flex-shrink: 0; position: relative; }
     .top-bar .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 26px; font-weight: 900; }
     .top-bar .logo span { color: var(--gold); }
     .top-bar .tagline { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
 
-    /* SCROLL AREA */
-    .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 16px 16px 100px;
-    }
+    /* אזור תוכן נגלל */
+    .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 100px; }
 
-    /* BOTTOM NAV */
-    .bottom-nav {
-      display: flex;
-      background: #fff;
-      border-top: 0.5px solid var(--border);
-      flex-shrink: 0;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .bottom-nav button {
-      flex: 1; border: none; background: transparent;
-      padding: 10px 4px 8px;
-      font-family: 'Heebo', sans-serif; font-size: 11px;
-      color: var(--muted); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      transition: color 0.2s;
-    }
+    /* כרטיסיות ניווט תחתונות */
+    .bottom-nav { display: flex; background: #fff; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+    .bottom-nav button { flex: 1; border: none; background: transparent; padding: 10px 4px 8px; font-size: 11px; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .bottom-nav button.active { color: var(--navy); }
     .bottom-nav button .nav-icon { font-size: 22px; }
-    .bottom-nav button .nav-label { font-weight: 500; }
 
-    /* SECTIONS */
     .section { display: none; }
     .section.active { display: block; }
 
-    /* CARDS */
-    .card {
-      background: var(--card-bg);
-      border: 0.5px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    /* SECTION TITLES */
+    /* כרטיסים ואלמנטים */
+    .card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
     .section-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-    .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
 
-    /* UPLOAD AREA */
-    .upload-area {
-      border: 1.5px dashed var(--gold);
-      border-radius: 14px;
-      padding: 28px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .upload-area:active { background: rgba(201,168,76,0.07); }
-    .upload-area .u-icon { font-size: 44px; margin-bottom: 10px; }
-    .upload-area strong { display: block; font-size: 15px; color: var(--navy); margin-bottom: 4px; }
-    .upload-area p { font-size: 13px; color: var(--muted); }
-
-    /* SCORE */
+    /* העלאה ו-AI */
+    .upload-area { border: 1.5px dashed var(--gold); border-radius: 14px; padding: 28px 16px; text-align: center; cursor: pointer; }
     .score-wrap { text-align: center; padding: 12px 0 4px; }
     .score-big { font-family: 'Frank Ruhl Libre', serif; font-size: 72px; font-weight: 900; color: var(--navy); line-height: 1; }
-    .score-big span { font-size: 26px; color: var(--muted); }
-    .score-stars-row { font-size: 22px; margin: 8px 0 4px; color: var(--gold); }
-    .score-desc-txt { font-size: 13px; color: var(--muted); font-style: italic; }
-    .score-slider { width: 100%; margin: 14px 0 4px; accent-color: var(--gold); height: 4px; }
-    .slider-hint { font-size: 11px; color: var(--muted); text-align: center; }
 
-    /* FORM */
+    /* טפסים */
     .form-group { margin-bottom: 14px; }
     .form-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; font-weight: 500; }
-    .form-group input, .form-group select {
-      width: 100%; padding: 11px 13px;
-      border: 0.5px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Heebo', sans-serif; font-size: 15px;
-      background: #fff; color: var(--text); direction: rtl;
-      -webkit-appearance: none;
-    }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--gold); }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px; border: 0.5px solid var(--border); border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: 15px; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    /* PRIMARY BUTTON */
-    .btn-primary {
-      width: 100%; padding: 15px;
-      background: var(--navy); color: #fff;
-      border: none; border-radius: 12px;
-      font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s;
-      letter-spacing: 0.3px;
-    }
-    .btn-primary:active { transform: scale(0.98); background: var(--navy-mid); }
+    .btn-primary { width: 100%; padding: 15px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-gold { width: 100%; padding: 15px; background: var(--gold); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    
+    /* פילטרים */
+    .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 15px; scrollbar-width: none; }
+    .filter-item { background: #fff; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 12px; white-space: nowrap; }
 
-    /* DIVIDER */
-    .divider { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
-
-    /* MATCH CARDS */
-    .match-card {
-      background: var(--card-bg);
-      border: 1.5px solid var(--gold);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-    .match-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
-    }
-    .match-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .avatar {
-      width: 54px; height: 54px; border-radius: 50%;
-      background: var(--navy); display: flex; align-items: center;
-      justify-content: center; font-size: 24px; flex-shrink: 0;
-      border: 2px solid var(--gold);
-    }
-    .match-name { font-family: 'Frank Ruhl Libre', serif; font-size: 19px; font-weight: 700; color: var(--navy); }
-    .match-loc { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .match-score-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-    .score-pill { background: var(--navy); color: var(--gold); padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; font-family: 'Frank Ruhl Libre', serif; }
-    .compat-bar { flex: 1; height: 5px; background: #e8e0d0; border-radius: 3px; overflow: hidden; }
-    .compat-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.8s ease; }
-    .compat-pct { font-size: 11px; color: var(--muted); white-space: nowrap; }
-    .details-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-    .detail-box { background: var(--cream); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 4px; text-align: center; }
-    .detail-box .dl { font-size: 10px; color: var(--muted); display: block; margin-bottom: 2px; }
-    .detail-box .dv { font-size: 12px; font-weight: 500; color: var(--navy); }
-    .match-about { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
-    .btn-contact {
-      width: 100%; padding: 11px;
-      border: 1.5px solid var(--gold); border-radius: 10px;
-      background: transparent; color: var(--gold-dark);
-      font-family: 'Heebo', sans-serif; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .btn-contact:active { background: var(--gold); color: #fff; }
-
-    .lock-box {
-      text-align: center; padding: 14px;
-      background: var(--cream); border-radius: 10px;
-      border: 0.5px dashed var(--border);
-    }
-    .lock-box p { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-    .btn-upgrade {
-      padding: 9px 20px; border: 1.5px solid var(--border); border-radius: 8px;
-      background: #fff; color: var(--muted);
-      font-family: 'Heebo', sans-serif; font-size: 13px; font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-upgrade:active { border-color: var(--gold); color: var(--navy); }
-
-    .badge-free { background: #E8F5E9; color: #2E7D32; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; margin-right: auto; }
-    .badge-lock { background: #FFF8E1; color: #F57F17; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; margin-right: auto; }
-
-    /* PREMIUM */
-    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .price-card {
-      border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px 10px; text-align: center; cursor: pointer;
-      transition: all 0.2s; position: relative; background: #fff;
-    }
-    .price-card:active { border-color: var(--gold); }
-    .price-card.selected { border-color: var(--navy); border-width: 2px; background: rgba(26,39,68,0.04); }
-    .price-card.popular::before {
-      content: 'הכי פופולרי'; position: absolute; top: -11px; right: 50%; transform: translateX(50%);
-      background: var(--gold); color: #fff; font-size: 10px; padding: 2px 10px;
-      border-radius: 20px; font-weight: 700; white-space: nowrap;
-    }
-    .price-card .plan-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-    .price-card .amount { font-family: 'Frank Ruhl Libre', serif; font-size: 30px; font-weight: 900; color: var(--navy); }
-    .price-card .period { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .price-full { grid-column: 1 / -1; }
-
-    .perks { font-size: 13px; color: var(--muted); line-height: 2; padding: 12px; background: var(--cream); border-radius: 10px; border: 0.5px solid var(--border); margin-bottom: 16px; }
-
-    .btn-gold {
-      width: 100%; padding: 15px;
-      background: var(--gold); color: #fff;
-      border: none; border-radius: 12px;
-      font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .btn-gold:active { transform: scale(0.98); background: var(--gold-dark); }
-    .fine-print { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
-
-    /* SPINNER */
-    .spinner {
-      display: inline-block; width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-      vertical-align: middle; margin-right: 8px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* TOAST */
-    .toast {
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: var(--navy); color: #fff;
-      padding: 11px 22px; border-radius: 10px;
-      font-size: 14px; font-family: 'Heebo', sans-serif;
-      opacity: 0; transition: opacity 0.3s; z-index: 9999;
-      white-space: nowrap; pointer-events: none;
-    }
+    /* התאמות */
+    .match-card { background: #fff; border: 1.5px solid var(--gold); border-radius: 16px; padding: 16px; margin-bottom: 12px; position: relative; }
+    .badge-lock { background: #FFF8E1; color: #F57F17; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+    
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 11px 22px; border-radius: 10px; opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none; }
     .toast.show { opacity: 1; }
-
-    /* EMPTY STATE */
-    .empty-state { text-align: center; padding: 48px 16px; color: var(--muted); }
-    .empty-state .e-icon { font-size: 52px; margin-bottom: 16px; }
-    .empty-state p { font-size: 14px; line-height: 1.6; }
+    
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -260,281 +83,212 @@
 
   <div class="scroll-area">
 
-    <!-- PROFILE TAB -->
     <div id="tab-profile" class="section active">
-      <p class="section-title">הפרופיל שלי</p>
-      <p class="section-sub">מלא/י את הפרטים ותמונה כדי למצוא את ההתאמה המושלמת</p>
-
-      <div class="card">
-        <div class="upload-area" id="upload-area" onclick="simulateUpload()">
-          <div class="u-icon" id="u-icon">📷</div>
-          <strong id="u-title">העלה/י תמונה לניתוח</strong>
-          <p id="u-sub">AI ינתח את המראה שלך ויחשב דירוג</p>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <div style="flex:1; background: var(--navy); color: white; padding: 12px; border-radius: 12px; text-align: center;">
+          <div style="font-size: 18px; font-weight: bold;">12</div>
+          <div style="font-size: 10px; opacity: 0.8;">צפו בך היום</div>
         </div>
+        <div style="flex:1; background: var(--gold); color: white; padding: 12px; border-radius: 12px; text-align: center;">
+          <div style="font-size: 18px; font-weight: bold;">4</div>
+          <div style="font-size: 10px; opacity: 0.8;">התאמות חדשות</div>
+        </div>
+      </div>
 
-        <div id="score-area" style="display:none;">
-          <hr class="divider">
+      <p class="section-title">הפרופיל שלי</p>
+      <div class="card">
+        <div class="upload-area" id="upload-area" onclick="analyzeImageAI()">
+          <div id="u-icon" style="font-size:44px; margin-bottom:10px;">📷</div>
+          <strong id="u-title">העלה/י תמונה לניתוח AI</strong>
+          <p id="u-sub">ה-AI יבדוק איכות וצניעות לקבלת דירוג</p>
+        </div>
+        <div id="score-area" style="display:none; text-align:center;">
           <div class="score-wrap">
             <div class="score-big" id="score-num">8<span>/10</span></div>
-            <div class="score-stars-row" id="score-stars">★★★★☆</div>
-            <div class="score-desc-txt" id="score-desc">מראה מרשים — תחרות גבוהה!</div>
+            <div style="color:var(--gold); font-size:20px;">★★★★☆</div>
           </div>
-          <input type="range" class="score-slider" min="1" max="10" value="8" id="score-slider" oninput="updateScore(this.value)">
-          <p class="slider-hint">ניתן לכוונן ידנית</p>
+          <p style="font-size:12px; color:var(--muted); font-style:italic;">התמונה אושרה ע"י מערכת הסינון</p>
         </div>
       </div>
 
       <div class="card">
         <div class="form-group">
-          <label>שם פרטי</label>
-          <input type="text" placeholder="כגון: יוסי / מרים" id="f-name">
+          <label>שם מלא</label>
+          <input type="text" id="f-name" placeholder="שם פרטי ומשפחה">
         </div>
         <div class="two-col">
           <div class="form-group">
             <label>גיל</label>
-            <input type="number" placeholder="25" min="18" max="60" id="f-age">
+            <input type="number" id="f-age" placeholder="25">
           </div>
           <div class="form-group">
-            <label>מגדר</label>
-            <select id="f-gender">
+            <label>מגזר</label>
+            <select id="f-rel">
               <option value="">בחר/י</option>
-              <option value="m">זכר</option>
-              <option value="f">נקבה</option>
+              <option value="dl">דתי לאומי</option>
+              <option value="ch">חרדי</option>
+              <option value="mas">מסורתי</option>
             </select>
           </div>
         </div>
         <div class="form-group">
-          <label>רמת דתיות</label>
-          <select id="f-rel">
-            <option value="">בחר/י</option>
-            <option value="dl">דתי לאומי</option>
-            <option value="ch">חרדי</option>
-            <option value="chdl">חרד"לי</option>
-            <option value="mas">מסורתי דתי</option>
+          <label>כיסוי ראש / כיפה</label>
+          <select id="f-head">
+            <option value="yes">כן</option>
+            <option value="no">לא / גמיש</option>
+            <option value="part">חלקי</option>
           </select>
         </div>
         <div class="form-group">
-          <label>עיר מגורים</label>
-          <input type="text" placeholder="כגון: ירושלים, בני ברק..." id="f-city">
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label>השכלה</label>
-          <select id="f-edu">
-            <option value="">בחר/י</option>
-            <option value="yeshiva">ישיבה / סמינר</option>
-            <option value="college">מכללה</option>
-            <option value="uni">אוניברסיטה</option>
-            <option value="phd">תואר שלישי</option>
-          </select>
+          <label>קצת עלי ועל הבית שאני מחפש/ת</label>
+          <textarea id="f-about" rows="3" placeholder="תאר/י את עצמך..."></textarea>
         </div>
       </div>
-
-      <button class="btn-primary" id="find-btn" onclick="findMatches()">🔍 מצא/י התאמות</button>
+      <button class="btn-primary" onclick="findMatches()">🔍 מצא/י התאמות</button>
     </div>
 
-    <!-- MATCHES TAB -->
     <div id="tab-matches" class="section">
-      <p class="section-title">ההתאמות שלך</p>
-      <p class="section-sub" id="matches-sub">עדיין לא חיפשת התאמות</p>
+      <p class="section-title">התאמות עבורך</p>
+      
+      <div class="filter-bar">
+        <div class="filter-item">גיל: 18-30 ▾</div>
+        <div class="filter-item">אזור: מרכז ▾</div>
+        <div class="filter-item">לפי דירוג AI ▾</div>
+      </div>
+
+      <div class="card" style="background: #fff9e6; border: 1px solid var(--gold); margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="font-size:24px;">📩</div>
+          <div style="flex:1">
+            <p style="font-weight:bold; font-size:13px;">מחכה לך פנייה חדשה!</p>
+            <p style="font-size:11px; color:var(--muted);">"שלום, מאוד התרשמתי מהפרופיל..."</p>
+          </div>
+          <button onclick="showTab('premium')" style="background:var(--gold); color:white; border:none; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:bold;">קרא/י</button>
+        </div>
+      </div>
+
       <div id="matches-list">
-        <div class="empty-state">
-          <div class="e-icon">💫</div>
-          <p>מלא/י את הפרופיל שלך<br>ולחץ על "מצא/י התאמות"</p>
-        </div>
+        <div style="text-align:center; padding:40px; color:var(--muted);">עדיין לא נמצאו התאמות</div>
       </div>
     </div>
 
-    <!-- PREMIUM TAB -->
     <div id="tab-premium" class="section">
-      <p class="section-title">פרימיום</p>
-      <p class="section-sub">גש/י לכל ההתאמות ללא הגבלה</p>
-
-      <div class="card">
-        <div style="text-align:center;padding:8px 0 16px">
-          <div style="font-size:36px;margin-bottom:8px">🔐</div>
-          <div style="font-family:'Frank Ruhl Libre',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">שדרג/י לפרימיום</div>
-          <p style="font-size:13px;color:var(--muted);line-height:1.6">ההתאמה הראשונה בחינם.<br>לגישה לכל שאר ההתאמות — בחר/י מנוי:</p>
+        <p class="section-title">חבילות פרימיום</p>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:40px; margin-bottom:10px;">👑</div>
+            <p style="margin-bottom:15px; font-weight:500;">הצטרף/י למנויי פרימיום וגלה/י מי מעוניין בך</p>
+            <div class="form-group">
+                <div style="border:2px solid var(--gold); border-radius:12px; padding:15px; margin-bottom:10px; cursor:pointer;">
+                    <strong style="display:block;">מנוי חודשי</strong>
+                    <span style="font-size:20px; font-weight:900;">₪25</span>
+                </div>
+                <div style="border:1px solid var(--border); border-radius:12px; padding:15px; cursor:pointer;">
+                    <strong style="display:block;">מנוי שנתי (הכי משתלם)</strong>
+                    <span style="font-size:20px; font-weight:900;">₪200</span>
+                </div>
+            </div>
+            <button class="btn-gold" onclick="showToast('מעביר לסליקה מאובטחת... 💳')">שדרוג עכשיו</button>
         </div>
-
-        <div class="price-grid">
-          <div class="price-card selected" id="plan-month" onclick="selectPlan('month')">
-            <div class="plan-name">חודשי</div>
-            <div class="amount">₪25</div>
-            <div class="period">לחודש</div>
-          </div>
-          <div class="price-card" id="plan-3month" onclick="selectPlan('3month')">
-            <div class="plan-name">3 חודשים</div>
-            <div class="amount">₪65</div>
-            <div class="period">כל 3 חודשים</div>
-          </div>
-          <div class="price-card popular price-full" id="plan-year" onclick="selectPlan('year')">
-            <div class="plan-name">שנתי</div>
-            <div class="amount">₪200</div>
-            <div class="period">לשנה — חיסכון של 33%!</div>
-          </div>
-        </div>
-
-        <div class="perks">
-          ✅ גישה לכל ההתאמות<br>
-          ✅ ראה/י מי ביקר בפרופיל שלך<br>
-          ✅ פנייה ישירה בצ'אט<br>
-          ✅ תג מאומת על הפרופיל<br>
-          ✅ אלגוריתם דירוג מועדף
-        </div>
-
-        <button class="btn-gold" onclick="showToast('מעביר לדף תשלום מאובטח 🔐')">💛 הצטרף/י עכשיו</button>
-        <p class="fine-print">בהתאם לתנאי השימוש. ניתן לבטל בכל עת.</p>
-      </div>
     </div>
 
-  </div><!-- /scroll-area -->
+  </div>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button class="active" id="nav-profile" onclick="showTab('profile')">
       <span class="nav-icon">👤</span>
-      <span class="nav-label">פרופיל</span>
+      <span>פרופיל</span>
     </button>
     <button id="nav-matches" onclick="showTab('matches')">
       <span class="nav-icon">💞</span>
-      <span class="nav-label">התאמות</span>
+      <span>התאמות</span>
     </button>
     <button id="nav-premium" onclick="showTab('premium')">
       <span class="nav-icon">⭐</span>
-      <span class="nav-label">פרימיום</span>
+      <span>פרימיום</span>
     </button>
   </nav>
 
   <div class="toast" id="toast"></div>
 
-<script>
-  const PROFILES = [
-    { name:"מרים לוי", age:24, city:"ירושלים", rel:"דתי לאומי", edu:"אוניברסיטה", emoji:"👩", score:9, compat:95, about:"אוהבת ספרים, בישול וגמילות חסדים. מחפשת בן זוג רציני וחם." },
-    { name:"רחל כהן", age:26, city:"רמת גן", rel:"חרד\"לי", edu:"סמינר", emoji:"👩‍🦱", score:8, compat:89, about:"מורה, אוהבת ציור ומוזיקה קלאסית." },
-    { name:"דבורה שפירא", age:23, city:"מודיעין עילית", rel:"חרדי", edu:"מכללה", emoji:"👩‍🦳", score:8, compat:78, about:"לומדת רפואה, פעילה בחסד." },
-    { name:"אסתר מזרחי", age:27, city:"פתח תקווה", rel:"מסורתי דתי", edu:"אוניברסיטה", emoji:"👩‍🦰", score:7, compat:72, about:"עובדת סוציאלית, אוהבת טבע." },
-  ];
+  <script>
+    // נתונים דמו
+    const PROFILES = [
+      { name:"תהילה פ.", age:23, city:"ירושלים", rel:"דתי לאומי", score:9, compat:96, about:"מחפשת בחור רציני לקביעת עיתים לתורה." },
+      { name:"נעמה ל.", age:25, city:"בני ברק", rel:"חרדי", score:8, compat:88, about:"בוגרת סמינר, עובדת בהייטק." }
+    ];
 
-  const scoreDescs = {
-    1:"מראה ממוצע", 2:"מראה ממוצע", 3:"מראה סביר", 4:"מראה סביר",
-    5:"נעים להסתכל", 6:"מושך/ת", 7:"יפה מאוד",
-    8:"מראה מרשים!", 9:"יפה/ה באופן יוצא דופן", 10:"מושלם — נדיר ביותר"
-  };
-  const toStars = v => "★".repeat(Math.round(v/2)) + "☆".repeat(5-Math.round(v/2));
+    function showTab(t) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-'+t).classList.add('active');
+      document.getElementById('nav-'+t).classList.add('active');
+    }
 
-  let scoreVal = 8, uploadDone = false;
+    async function analyzeImageAI() {
+      const icon = document.getElementById('u-icon');
+      const title = document.getElementById('u-title');
+      icon.innerHTML = '<span class="spinner"></span>';
+      title.innerText = "ה-AI בודק צניעות ואיכות...";
 
-  function showTab(t) {
-    ['profile','matches','premium'].forEach(id => {
-      document.getElementById('tab-'+id).classList.toggle('active', id===t);
-      document.getElementById('nav-'+id).classList.toggle('active', id===t);
-    });
-    document.querySelector('.scroll-area').scrollTop = 0;
-  }
+      // סימולציה של ניתוח AI
+      setTimeout(() => {
+        document.getElementById('upload-area').style.display = 'none';
+        document.getElementById('score-area').style.display = 'block';
+        showToast("התמונה אושרה ודורגה! ✨");
+      }, 2500);
+    }
 
-  function updateScore(v) {
-    scoreVal = parseInt(v);
-    document.getElementById('score-num').innerHTML = v + '<span>/10</span>';
-    document.getElementById('score-stars').textContent = toStars(v);
-    document.getElementById('score-desc').textContent = scoreDescs[v] || '';
-  }
+    function findMatches() {
+      if(!document.getElementById('f-name').value) {
+        showToast("נא למלא שם מלא");
+        return;
+      }
+      showToast("מחפש התאמות לפי פרופיל AI...");
+      setTimeout(() => {
+        buildMatches();
+        showTab('matches');
+      }, 1500);
+    }
 
-  function simulateUpload() {
-    if (uploadDone) return;
-    document.getElementById('u-icon').textContent = '⏳';
-    document.getElementById('u-title').textContent = 'מנתח תמונה...';
-    document.getElementById('u-sub').textContent = 'AI בודק מאפייני פנים';
-    setTimeout(() => {
-      document.getElementById('u-icon').textContent = '✅';
-      document.getElementById('u-title').textContent = 'תמונה נותחה בהצלחה';
-      document.getElementById('u-sub').textContent = 'הדירוג חושב אוטומטית — ניתן לכוונן';
-      document.getElementById('score-area').style.display = 'block';
-      uploadDone = true;
-      showToast('דירוג מראה הושלם! ✨');
-    }, 2000);
-  }
-
-  function findMatches() {
-    const name = document.getElementById('f-name').value.trim();
-    const age  = document.getElementById('f-age').value.trim();
-    const rel  = document.getElementById('f-rel').value;
-    if (!name || !age || !rel) { showToast('אנא מלא/י את כל השדות'); return; }
-
-    const btn = document.getElementById('find-btn');
-    btn.innerHTML = '<span class="spinner"></span> מחפש...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      btn.innerHTML = '🔍 מצא/י התאמות';
-      btn.disabled = false;
-      buildMatches();
-      showTab('matches');
-      showToast('נמצאו ' + PROFILES.length + ' התאמות! 🎉');
-    }, 2500);
-  }
-
-  function buildMatches() {
-    document.getElementById('matches-sub').textContent =
-      'נמצאו ' + PROFILES.length + ' התאמות לפי דירוג ' + scoreVal + '/10';
-    const list = document.getElementById('matches-list');
-    list.innerHTML = '';
-
-    PROFILES.forEach((p, i) => {
-      const free = i === 0;
-      const el = document.createElement('div');
-      el.className = 'match-card';
-      el.style.cssText = 'opacity:0;transform:translateY(14px);transition:all 0.4s ease '+(i*0.13)+'s';
-
-      el.innerHTML = `
-        <div class="match-row">
-          <div class="avatar">${p.emoji}</div>
-          <div style="flex:1">
-            <div class="match-name">${free ? p.name : '???'}</div>
-            <div class="match-loc">${free ? p.city + ' · ' + p.rel : '🔒 פרטים נעולים'}</div>
-            <div class="match-score-row">
-              <span class="score-pill">${p.score}/10</span>
-              <div class="compat-bar"><div class="compat-fill" style="width:0%" data-w="${p.compat}%"></div></div>
-              <span class="compat-pct">${p.compat}%</span>
+    function buildMatches() {
+      const list = document.getElementById('matches-list');
+      list.innerHTML = '';
+      PROFILES.forEach((p, i) => {
+        const isLocked = i > 0;
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <h3 style="color:var(--navy);">${isLocked ? 'פרופיל חסוי' : p.name}</h3>
+              <p style="font-size:12px; color:var(--muted);">${p.age} • ${p.city} • ${p.rel}</p>
+            </div>
+            <span class="badge-lock">${isLocked ? '🔒 פרימיום' : '✅ חופשי'}</span>
+          </div>
+          <div style="margin-top:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="background:var(--navy); color:var(--gold); padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold;">${p.score}/10</span>
+              <div style="flex:1; height:4px; background:#eee; border-radius:2px;">
+                <div style="width:${p.compat}%; height:100%; background:var(--gold); border-radius:2px;"></div>
+              </div>
+              <span style="font-size:11px;">${p.compat}% התאמה</span>
             </div>
           </div>
-          <span class="${free?'badge-free':'badge-lock'}">${free?'חינם':'🔒'}</span>
-        </div>
-        ${free ? `
-          <div class="details-grid">
-            <div class="detail-box"><span class="dl">גיל</span><span class="dv">${p.age}</span></div>
-            <div class="detail-box"><span class="dl">השכלה</span><span class="dv">${p.edu}</span></div>
-            <div class="detail-box"><span class="dl">דתיות</span><span class="dv">${p.rel}</span></div>
-          </div>
-          <p class="match-about">${p.about}</p>
-          <button class="btn-contact" onclick="showToast('הודעה נשלחה ל${p.name}! 💌')">💌 שלח/י הודעה</button>
-        ` : `
-          <div class="lock-box">
-            <p>🔒 שדרג/י לפרימיום לצפייה בפרטים המלאים</p>
-            <button class="btn-upgrade" onclick="showTab('premium')">שדרג/י לפרימיום ←</button>
-          </div>
-        `}
-      `;
-      list.appendChild(el);
-      requestAnimationFrame(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; });
-    });
+          <p style="font-size:13px; margin-top:10px; color:var(--text);">${isLocked ? 'השדרוג יחשוף את פרטי המשתמש והתיאור...' : p.about}</p>
+          <button style="width:100%; margin-top:12px; padding:10px; border:1px solid var(--gold); background:none; border-radius:8px; color:var(--gold-dark); font-weight:bold; cursor:pointer;" 
+                  onclick="${isLocked ? "showTab('premium')" : "showToast('הודעה נשלחה!')"}">
+            ${isLocked ? 'לצפייה בפרופיל המלא' : 'שלח/י הודעה'}
+          </button>
+        `;
+        list.appendChild(card);
+      });
+    }
 
-    setTimeout(() => {
-      document.querySelectorAll('.compat-fill').forEach(e => { e.style.width = e.dataset.w; });
-    }, 500);
-  }
-
-  function selectPlan(p) {
-    ['month','3month','year'].forEach(id => {
-      document.getElementById('plan-'+id).classList.toggle('selected', id===p);
-    });
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
-  }
-</script>
+    function showToast(m) {
+      const t = document.getElementById('toast');
+      t.innerText = m; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
 </body>
 </html>
