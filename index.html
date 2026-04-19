@@ -3,263 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>נשמות — שידוך חכם</title>
-  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <title>נשמות — אפליקציית שידוכים</title>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* שמירה על העיצוב הקיים והוספת סגנונות חדשים */
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root {
-      --gold: #C9A84C; --gold-light: #E8D5A3; --gold-dark: #8B6914;
-      --cream: #FAF7F0; --navy: #1A2744; --navy-mid: #2D3F6B;
-      --text: #2C1810; --muted: #6B5B4E;
-      --border: rgba(201,168,76,0.3); --card-bg: rgba(255,252,245,0.97);
+      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff;
     }
-    html, body { height: 100%; overflow: hidden; }
-    body { font-family: 'Heebo', sans-serif; background: var(--cream); color: var(--text); display: flex; flex-direction: column; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; }
+    body { background: var(--cream); color: var(--navy); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-    .top-bar { background: var(--navy); color: #fff; text-align: center; padding: 14px 16px 10px; flex-shrink: 0; }
-    .top-bar .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 26px; font-weight: 900; }
-    .top-bar .logo span { color: var(--gold); }
-    .top-bar .tagline { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
-
-    .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 100px; }
-
-    .bottom-nav { display: flex; background: #fff; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
-    .bottom-nav button { flex: 1; border: none; background: transparent; padding: 10px 4px 8px; font-family: 'Heebo', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .bottom-nav button.active { color: var(--navy); font-weight: bold; }
-
+    /* UI Elements */
+    .top-bar { background: var(--navy); color: white; padding: 15px; text-align: center; flex-shrink: 0; }
+    .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 24px; }
+    
+    .scroll-area { flex: 1; overflow-y: auto; padding: 15px 15px 100px; }
     .section { display: none; }
     .section.active { display: block; }
-    .card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-    .section-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-    
-    .photo-upload-box { border: 1.5px dashed var(--gold); border-radius: 14px; padding: 22px 16px; text-align: center; cursor: pointer; position: relative; }
-    .photo-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold); margin: 0 auto 10px; display: block; }
-    
-    .analysis-badge { background: var(--gold); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; display: inline-block; margin-top: 8px; }
 
-    .form-group { margin-bottom: 14px; }
-    .form-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
-    .form-group input, .form-group select { width: 100%; padding: 11px 13px; border: 0.5px solid var(--border); border-radius: 10px; font-family: 'Heebo'; }
+    /* כרטיסיות פרופיל */
+    .profile-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
+    .profile-info { padding: 15px; }
+    .profile-info h3 { font-size: 20px; margin-bottom: 5px; }
+    .details-row { font-size: 13px; color: #666; margin-bottom: 10px; }
+    .actions { display: flex; justify-content: space-around; padding: 10px; border-top: 1px solid #f0f0f0; }
+    .btn-action { border: none; background: none; font-size: 24px; cursor: pointer; transition: transform 0.2s; }
+    .btn-action:active { transform: scale(1.3); }
 
-    .btn-primary { width: 100%; padding: 15px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
-    
-    /* Stars & Matching */
-    .stars-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 12px; }
-    .star-btn { font-size: 28px; background: none; border: none; color: #d0c4a0; cursor: pointer; }
-    .star-btn.lit { color: var(--gold); }
-    
-    .match-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
-    .msg-counter { font-size: 12px; color: var(--gold-dark); font-weight: bold; text-align: center; margin-bottom: 10px; }
-    
-    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 11px 22px; border-radius: 10px; opacity: 0; transition: 0.3s; z-index: 9999; }
-    .toast.show { opacity: 1; }
+    /* אפקט לייק/מאץ' */
+    @keyframes matchPop {
+      0% { transform: scale(0); opacity: 0; }
+      80% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .match-overlay { position: fixed; inset: 0; background: rgba(26,39,68,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; text-align: center; }
+    .match-overlay.active { display: flex; animation: matchPop 0.5s ease-out; }
+
+    /* צ'אט */
+    .chat-item { display: flex; align-items: center; gap: 12px; padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+    .avatar-sm { width: 50px; height: 50px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
+    /* טפסים */
+    .input-field { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    .premium-badge { background: linear-gradient(45deg, var(--gold), #f1e0b0); color: var(--navy); padding: 15px; border-radius: 12px; font-weight: bold; text-align: center; margin-top: 20px; }
+
+    /* ניווט */
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; padding-bottom: 15px; }
+    .bottom-nav button { flex: 1; padding: 15px; border: none; background: none; font-size: 12px; color: #888; }
+    .bottom-nav button.active { color: var(--gold); font-weight: bold; }
   </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <div class="logo">נשמ<span>ה</span>ות</div>
-  <div class="tagline">שידוך חכם לציבור הדתי ✦</div>
+<div class="match-overlay" id="match-anim">
+  <h1 style="font-family:'Frank Ruhl Libre'; font-size: 48px;">זה מאץ'! 💖</h1>
+  <p>נמצאה נשמה תואמת</p>
+  <button onclick="closeMatch()" style="margin-top:20px; padding:10px 30px; border-radius:20px; border:none;">איזה כיף!</button>
 </div>
 
+<div class="top-bar"><div class="logo">נשמות</div></div>
+
 <div class="scroll-area">
-  <div id="tab-profile" class="section active">
-    <p class="section-title">הפרופיל שלי</p>
-    <div class="card">
-      <div class="photo-upload-box" onclick="document.getElementById('photo-input').click()">
-        <input type="file" accept="image/*" id="photo-input" style="display:none" onchange="handlePhotoAndAnalyze(event)">
-        <img id="profile-img-display" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ccc' d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E">
-        <div id="analysis-status"><strong>לחץ להעלאת תמונה</strong></div>
-        <div id="ai-score-badge" class="analysis-badge" style="display:none">ניתוח AI: <span id="user-ai-score">0</span>/10</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="form-group"><label>שם מלא</label><input type="text" id="f-name" oninput="saveUserData()"></div>
-      <div class="form-group"><label>גיל</label><input type="number" id="f-age" oninput="saveUserData()"></div>
-      <div class="form-group">
-        <label>רמת דתיות</label>
-        <select id="f-rel" onchange="saveUserData()">
-          <option value="">בחר/י</option>
-          <option value="דתי לאומי">דתי לאומי</option>
-          <option value="חרדי">חרדי</option>
-          <option value="מסורתי">מסורתי</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn-primary" onclick="showTab('rate')">המשך לדירוג והתאמות</button>
+  <div id="tab-home" class="section active">
+    <div id="feed-container"></div>
   </div>
 
-  <div id="tab-rate" class="section">
-    <p class="section-title">דירוג קהילה</p>
-    <div id="rate-card-container"></div>
+  <div id="tab-messages" class="section">
+    <h2 style="margin-bottom:15px">השיחות שלי</h2>
+    <div id="chats-container"></div>
   </div>
 
-  <div id="tab-matches" class="section">
-    <p class="section-title">התאמות חכמות</p>
-    <div class="msg-counter">הודעות שנותרו: <span id="msg-left">10</span></div>
-    <div id="matches-list"></div>
+  <div id="tab-likes" class="section">
+    <h2 style="margin-bottom:15px">מי עשה לי לייק?</h2>
+    <div id="likes-received-container"></div>
+  </div>
+
+  <div id="tab-profile" class="section">
+    <h2>הפרופיל שלי</h2>
+    <div style="background:white; padding:15px; border-radius:15px; margin-top:10px;">
+      <input type="text" id="p-name" class="input-field" placeholder="שם מלא" oninput="save()">
+      <input type="text" id="p-city" class="input-field" placeholder="עיר מגורים" oninput="save()">
+      <input type="number" id="p-kids" class="input-field" placeholder="מספר ילדים" oninput="save()">
+      <textarea id="p-bio" class="input-field" placeholder="קצת עלי..." oninput="save()"></textarea>
+      
+      <div class="premium-badge">
+        💎 מנוי פרימיום: ללא הגבלת הודעות
+        <button onclick="alert('עובר לתשלום...')" style="display:block; width:100%; margin-top:10px; padding:8px; background:var(--navy); color:white; border:none; border-radius:5px;">רכוש עכשיו</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <button id="nav-profile" class="active" onclick="showTab('profile')">👤 פרופיל</button>
-  <button id="nav-rate" onclick="showTab('rate')">⭐ דירוג</button>
-  <button id="nav-matches" onclick="showTab('matches')">💞 התאמות</button>
+  <button onclick="showTab('home')" id="n-home" class="active">🏠 בית</button>
+  <button onclick="showTab('likes')" id="n-likes">❤️ לייקים</button>
+  <button onclick="showTab('messages')" id="n-messages">💬 הודעות</button>
+  <button onclick="showTab('profile')" id="n-profile">👤 אני</button>
 </nav>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// --- נתונים ומאגר ---
-const DATABASE = [
-  { id: 1, name: "תהילה", age: 22, city: "ירושלים", score: 8, emoji: "👸", bio: "סטודנטית לחינוך" },
-  { id: 2, name: "רחל", age: 25, city: "בני ברק", score: 6, emoji: "👩‍💼", bio: "גרפיקאית" },
-  { id: 3, name: "מיכל", age: 24, city: "פתח תקווה", score: 9, emoji: "🎨", bio: "אוהבת אומנות" },
-  { id: 4, name: "נועה", age: 23, city: "חיפה", score: 7, emoji: "🧬", bio: "חוקרת במעבדה" }
+// מאגר משתמשים דמיוני
+const USERS = [
+  { id: 1, name: "מיכל", age: 24, city: "ירושלים", kids: 0, bio: "אוהבת טיולים וספרים", emoji: "🌸" },
+  { id: 2, name: "דניאל", age: 29, city: "תל אביב", kids: 0, bio: "הייטקיסט שומר מסורת", emoji: "👨‍💻" },
+  { id: 3, name: "נועה", age: 27, city: "חיפה", kids: 2, bio: "אמא במשרה מלאה, מחפשת פרק ב'", emoji: "👩‍👧‍👦" }
 ];
 
-let userData = {
-  name: '', age: '', rel: '', photo: '', aiScore: 0, messagesSent: 0
-};
+let myData = JSON.parse(localStorage.getItem('user_v2')) || { name: '', city: '', kids: '', bio: '', likesReceived: [1], messages: [] };
 
-// --- אתחול ושמירה ---
-window.onload = () => {
-  const saved = localStorage.getItem('soulmate_user');
-  if (saved) {
-    userData = JSON.parse(saved);
-    document.getElementById('f-name').value = userData.name;
-    document.getElementById('f-age').value = userData.age;
-    document.getElementById('f-rel').value = userData.rel;
-    if (userData.photo) {
-      document.getElementById('profile-img-display').src = userData.photo;
-      updateAIScoreUI(userData.aiScore);
-    }
-  }
-  updateMessageCounter();
-  renderRateCards();
-  renderMatches();
-};
-
-function saveUserData() {
-  userData.name = document.getElementById('f-name').value;
-  userData.age = document.getElementById('f-age').value;
-  userData.rel = document.getElementById('f-rel').value;
-  localStorage.setItem('soulmate_user', JSON.stringify(userData));
+function save() {
+  myData.name = document.getElementById('p-name').value;
+  myData.city = document.getElementById('p-city').value;
+  myData.kids = document.getElementById('p-kids').value;
+  myData.bio = document.getElementById('p-bio').value;
+  localStorage.setItem('user_v2', JSON.stringify(myData));
 }
 
-// --- ניתוח תמונה (סימולציה של AI) ---
-function handlePhotoAndAnalyze(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    userData.photo = event.target.result;
-    document.getElementById('profile-img-display').src = userData.photo;
-    
-    // סימולציית ניתוח "עומק"
-    showToast("מנתח תווי פנים ע״י בינה מלאכותית...");
-    setTimeout(() => {
-      const simulatedScore = Math.floor(Math.random() * 4) + 6; // ציונים בין 6-10
-      userData.aiScore = simulatedScore;
-      updateAIScoreUI(simulatedScore);
-      saveUserData();
-      renderMatches(); // עדכון התאמות לפי הציון החדש
-    }, 2000);
-  };
-  reader.readAsDataURL(file);
-}
-
-function updateAIScoreUI(score) {
-  document.getElementById('user-ai-score').textContent = score;
-  document.getElementById('ai-score-badge').style.display = 'inline-block';
-  document.getElementById('analysis-status').innerHTML = "<strong>ניתוח הושלם ✅</strong>";
-}
-
-// --- ניהול טאבים ---
 function showTab(t) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + t).classList.add('active');
-  document.getElementById('nav-' + t).classList.add('active');
+  document.getElementById('n-' + t).classList.add('active');
 }
 
-// --- הצגת התאמות (אלגוריתם מבוסס ציון) ---
-function renderMatches() {
-  const list = document.getElementById('matches-list');
-  list.innerHTML = '';
-  
-  // אלגוריתם: מציג את מי שהציון שלו קרוב לציון המשתמש (+-2)
-  const matches = DATABASE.filter(p => Math.abs(p.score - userData.aiScore) <= 2);
+// חסימת טלפונים והחלפה בכוכביות
+function maskPhoneNumbers(text) {
+  return text.replace(/\d{8,}/g, '**********');
+}
 
-  matches.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'match-card';
-    card.innerHTML = `
-      <div style="display:flex; gap:15px; align-items:center">
-        <div style="font-size:40px">${p.emoji}</div>
-        <div style="flex:1">
-          <div style="font-weight:bold">${p.name}, ${p.age}</div>
-          <div style="font-size:12px; color:gray">${p.city} | התאמה: ${90 + (p.score == userData.aiScore ? 9 : 0)}%</div>
-          <div style="font-size:13px; margin-top:5px">${p.bio}</div>
-        </div>
-        <button onclick="sendMessage('${p.name}')" style="background:var(--gold); border:none; color:white; padding:8px; border-radius:8px">שלח הודעה</button>
+function renderFeed() {
+  const container = document.getElementById('feed-container');
+  container.innerHTML = USERS.map(u => `
+    <div class="profile-card">
+      <div style="height:200px; background:#eee; display:flex; align-items:center; justify-content:center; font-size:80px">${u.emoji}</div>
+      <div class="profile-info">
+        <h3>${u.name}, ${u.age}</h3>
+        <div class="details-row">📍 ${u.city} | 👶 ילדים: ${u.kids}</div>
+        <p style="font-size:14px">${u.bio}</p>
       </div>
-    `;
-    list.appendChild(card);
-  });
-}
-
-// --- מערכת הודעות וסינון ---
-function sendMessage(name) {
-  if (userData.messagesSent >= 10) {
-    showToast("ניצלת את 10 ההודעות בחינם. שדרג לפרימיום!");
-    return;
-  }
-
-  const msg = prompt(`כתוב הודעה ל${name} (אסור לשלוח מספרי טלפון):`);
-  if (!msg) return;
-
-  // רג'קס לזיהוי רצף מספרים (טלפון)
-  const phoneRegex = /\d{8,}/;
-  if (phoneRegex.test(msg.replace(/[-\s]/g, ''))) {
-    alert("מערכת הביטחון חסמה את ההודעה: אין לשלוח מספרי טלפון בשלב זה.");
-    return;
-  }
-
-  userData.messagesSent++;
-  updateMessageCounter();
-  saveUserData();
-  showToast(`הודעה נשלחה ל${name}!`);
-}
-
-function updateMessageCounter() {
-  document.getElementById('msg-left').textContent = 10 - userData.messagesSent;
-}
-
-// --- דירוג פרופילים (הקיים) ---
-function renderRateCards() {
-  const container = document.getElementById('rate-card-container');
-  const p = DATABASE[0]; // לצורך הדוגמה
-  container.innerHTML = `
-    <div class="card" style="text-align:center">
-      <div style="font-size:60px">${p.emoji}</div>
-      <h3>${p.name}</h3>
-      <div class="stars-row">
-        ${[1,2,3,4,5].map(n => `<span class="star-btn" onclick="showToast('תודה על הדירוג!')">★</span>`).join('')}
+      <div class="actions">
+        <button class="btn-action" onclick="alert('הפרופיל הוסתר')">👎</button>
+        <button class="btn-action" onclick="triggerMatch(${u.id})">❤️</button>
       </div>
-      <p>דרגו כדי לעזור לאלגוריתם</p>
     </div>
-  `;
+  `).join('');
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+function triggerMatch(id) {
+  document.getElementById('match-anim').classList.add('active');
 }
+
+function closeMatch() {
+  document.getElementById('match-anim').classList.remove('active');
+  showTab('messages');
+}
+
+function renderLikes() {
+  const container = document.getElementById('likes-received-container');
+  container.innerHTML = myData.likesReceived.map(id => {
+    const u = USERS.find(x => x.id === id);
+    return `
+      <div class="chat-item" onclick="showTab('home')">
+        <div class="avatar-sm">${u.emoji}</div>
+        <div>
+          <div style="font-weight:bold">${u.name} שלח/ה לך לייק!</div>
+          <div style="font-size:12px; color:var(--gold)">לחץ לצפייה בפרופיל</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// פונקציית הודעות עם סינון כוכביות
+function sendMessage(targetName) {
+  let rawMsg = prompt(`שלח הודעה ל${targetName}:`);
+  if (!rawMsg) return;
+  
+  let safeMsg = maskPhoneNumbers(rawMsg);
+  if (safeMsg !== rawMsg) {
+    alert("שים לב: מספרי טלפון הוסתרו מטעמי בטיחות.");
+  }
+  
+  alert(`הודעה נשלחה: ${safeMsg}`);
+}
+
+// אתחול
+window.onload = () => {
+  document.getElementById('p-name').value = myData.name;
+  document.getElementById('p-city').value = myData.city;
+  document.getElementById('p-kids').value = myData.kids;
+  document.getElementById('p-bio').value = myData.bio;
+  renderFeed();
+  renderLikes();
+};
 </script>
 </body>
 </html>
