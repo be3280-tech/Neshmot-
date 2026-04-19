@@ -11,7 +11,7 @@
       --gold-light: #e8c96a;
       --navy: #1A2744;
       --navy-light: #243460;
-      --bg: #E3F2FD; /* שינוי לתכלת עדין כפי שביקשת */
+      --bg: #F4F7FF;
       --white: #ffffff;
       --text: #1a1a2e;
       --muted: #6B7B9E;
@@ -22,158 +22,1530 @@
       --shadow: 0 4px 24px rgba(26,39,68,0.10);
       --radius: 16px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Heebo', sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+    html, body { height: 100%; }
+    body { font-family: 'Heebo', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
-    /* כל שאר ה-CSS המקורי שלך נשמר כאן ללא שינוי */
-    .top-bar { background: var(--white); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; position: relative; }
-    .logo { font-family: 'Frank Ruhl Libre'; font-weight: 900; font-size: 26px; color: var(--navy); }
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ===== HEADER ===== */
+    .top-bar {
+      background: var(--navy);
+      color: #fff;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      flex-shrink: 0;
+    }
+    .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
     .logo span { color: var(--gold); }
-    
-    .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--white); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; box-shadow: -10px 0 30px rgba(0,0,0,0.1); padding: 30px 20px; }
+    .header-icons { display: flex; gap: 14px; align-items: center; }
+    .header-icon { font-size: 20px; cursor: pointer; opacity: 0.85; transition: opacity 0.2s; }
+    .header-icon:hover { opacity: 1; }
+    .notif-dot { position: relative; }
+    .notif-dot::after { content: ''; position: absolute; top: -2px; left: -2px; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; border: 1.5px solid var(--navy); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+      background: #fff; transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 2000; box-shadow: -4px 0 30px rgba(26,39,68,0.15); overflow-y: auto;
+    }
     .sidebar.open { right: 0; }
-    .sidebar-overlay { position: fixed; inset: 0; background: rgba(26,39,68,0.4); backdrop-filter: blur(4px); display: none; z-index: 999; }
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(10,15,30,0.5); display: none; z-index: 1500; backdrop-filter: blur(2px); }
     .sidebar-overlay.show { display: block; }
-    
-    .menu-item { padding: 16px 0; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; gap: 12px; color: var(--navy); font-weight: 500; cursor: pointer; }
-    
-    .scroll-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+    .sidebar-header { background: var(--navy); padding: 20px; color: white; display: flex; align-items: center; gap: 14px; }
+    .sidebar-avatar { width: 52px; height: 52px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .sidebar-name { font-weight: 700; font-size: 16px; }
+    .sidebar-plan { font-size: 11px; color: var(--gold); margin-top: 2px; }
+    .sidebar-close { margin-right: auto; font-size: 22px; cursor: pointer; opacity: 0.7; }
+    .nav-item {
+      padding: 14px 20px; border-bottom: 1px solid var(--border-soft);
+      cursor: pointer; color: var(--text); display: flex;
+      justify-content: space-between; align-items: center;
+      font-weight: 500; font-size: 14px; transition: background 0.15s;
+    }
+    .nav-item:hover { background: #f7f9ff; }
+    .nav-item .nav-left { display: flex; gap: 10px; align-items: center; }
+    .badge-pill { background: var(--gold); color: white; padding: 1px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+
+    /* ===== SCROLL AREA ===== */
+    .scroll-area { flex: 1; overflow-y: auto; padding: 0 0 80px 0; }
     .section { display: none; }
     .section.active { display: block; }
-    
-    /* עיצוב הכרטיסיות המקורי */
-    .profile-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; position: relative; border: 1px solid var(--border-soft); }
-    .p-img { height: 320px; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; font-size: 60px; }
-    .p-content { padding: 20px; }
-    .btn-group { display: flex; gap: 12px; margin-top: 20px; }
-    .btn { flex: 1; height: 50px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-navy { background: var(--navy); color: white; }
-    .btn-gold-outline { border: 2px solid var(--gold); color: var(--gold); background: transparent; }
 
-    /* מודאל תשלום */
-    .overlay { position: fixed; inset: 0; background: rgba(26,39,68,0.85); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .overlay.show { display: flex; }
-    .modal { background: var(--white); width: 100%; max-width: 400px; border-radius: 24px; padding: 30px; }
-    .plan-card { padding: 15px; border: 2px solid #eee; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; cursor: pointer; }
-    .plan-card.active { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+    /* ===== SEARCH BAR ===== */
+    .search-section {
+      background: #fff;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .search-input-wrap { position: relative; }
+    .search-input-wrap input {
+      width: 100%; padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Heebo'; font-size: 14px; background: var(--bg);
+      transition: border-color 0.2s;
+    }
+    .search-input-wrap input:focus { outline: none; border-color: var(--gold); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+    .search-filters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-top: 8px; }
+    .search-filters select, .search-filters input {
+      padding: 7px 8px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 11px; font-family: 'Heebo'; background: var(--bg); color: var(--text);
+      cursor: pointer;
+    }
+    .search-filters select:focus, .search-filters input:focus { outline: none; border-color: var(--gold); }
+    .filter-btn {
+      grid-column: span 3; padding: 8px;
+      background: var(--navy); color: white; border: none;
+      border-radius: 8px; font-family: 'Heebo'; font-size: 13px;
+      cursor: pointer; font-weight: 600; display: flex; align-items: center;
+      justify-content: center; gap: 6px; transition: background 0.2s;
+    }
+    .filter-btn:hover { background: var(--navy-light); }
 
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 100; }
-    .nav-btn { background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; }
-    .nav-btn.active { color: var(--navy); font-weight: bold; }
+    /* ===== PROFILE CARDS ===== */
+    .feed-container { padding: 14px; }
+    .profile-card {
+      background: #fff; border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--border-soft);
+      margin-bottom: 16px; box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .profile-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(26,39,68,0.14); }
+    .card-img {
+      height: 210px; background: linear-gradient(135deg, #e8eeff 0%, #f0e8ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 70px; position: relative; overflow: hidden;
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
+    .ai-badge {
+      position: absolute; bottom: 10px; right: 10px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-light));
+      color: white; padding: 4px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; border: 1px solid var(--gold);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .online-dot {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--success); width: 10px; height: 10px;
+      border-radius: 50%; border: 2px solid #fff;
+    }
+    .block-btn {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,0.45); color: white; border: none;
+      padding: 4px 10px; border-radius: 6px; font-size: 11px;
+      cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s;
+      font-family: 'Heebo';
+    }
+    .block-btn:hover { background: rgba(231,76,60,0.8); }
+    .card-body { padding: 14px; }
+    .card-name { font-size: 17px; font-weight: 700; font-family: 'Frank Ruhl Libre'; }
+    .card-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .card-tag {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2px 8px; font-size: 11px; color: var(--navy);
+    }
+    .card-about { font-size: 13px; color: var(--muted); margin: 8px 0; line-height: 1.5; }
+    .card-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-like {
+      flex: 1; padding: 11px; border: 2px solid var(--error);
+      background: transparent; color: var(--error); border-radius: 10px;
+      font-family: 'Heebo'; font-weight: 700; cursor: pointer; font-size: 14px;
+      transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .btn-like:hover, .btn-like.active { background: var(--error); color: white; }
+    .btn-msg {
+      flex: 2; padding: 11px; background: var(--navy);
+      color: white; border: none; border-radius: 10px;
+      font-family: 'Heebo'; font-weight: 700; cursor: pointer; font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-msg:hover { background: var(--navy-light); }
+    .btn-fav {
+      width: 44px; padding: 11px; border: 2px solid var(--border);
+      background: transparent; border-radius: 10px; cursor: pointer;
+      font-size: 16px; transition: all 0.2s;
+    }
+    .btn-fav:hover { border-color: var(--gold); background: #fffaf0; }
+
+    /* ===== GENERAL CARDS ===== */
+    .card {
+      background: #fff; padding: 16px; border-radius: var(--radius);
+      border: 1px solid var(--border-soft); margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(26,39,68,0.06);
+    }
+    .card-title { font-family: 'Frank Ruhl Libre'; font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--navy); }
+    .section-pad { padding: 16px; }
+    .section-title { font-family: 'Frank Ruhl Libre'; font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 16px; }
+
+    /* ===== FORMS ===== */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: 'Heebo'; font-size: 14px;
+      background: var(--bg); color: var(--text); transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--gold); background: #fff;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-primary {
+      width: 100%; padding: 14px; background: var(--navy); color: #fff;
+      border: none; border-radius: 12px; font-family: 'Heebo';
+      font-weight: 700; font-size: 15px; cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover { background: var(--navy-light); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-gold {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: white; border: none; border-radius: 12px; font-family: 'Heebo';
+      font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.45); }
+    .btn-outline {
+      width: 100%; padding: 10px; border: 1.5px solid var(--gold); background: none;
+      border-radius: 10px; color: var(--gold); font-family: 'Heebo';
+      font-weight: 700; cursor: pointer; text-align: center; font-size: 14px;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(201,168,76,0.08); }
+    .btn-danger {
+      width: 100%; padding: 12px; background: none; border: 1.5px solid var(--error);
+      border-radius: 10px; color: var(--error); font-family: 'Heebo';
+      font-weight: 700; cursor: pointer; font-size: 14px;
+    }
+
+    /* ===== MESSAGES / CHAT ===== */
+    .conv-list { padding: 0; }
+    .conv-item {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border-soft); cursor: pointer; transition: background 0.15s;
+    }
+    .conv-item:hover { background: #f7f9ff; }
+    .conv-avatar { width: 50px; height: 50px; background: var(--bg); border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; position: relative; flex-shrink: 0; }
+    .conv-online { position: absolute; bottom: 1px; left: 1px; width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 2px solid white; }
+    .conv-info { flex: 1; min-width: 0; }
+    .conv-name { font-weight: 700; font-size: 14px; }
+    .conv-preview { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .conv-time { font-size: 11px; color: var(--muted); }
+    .conv-unread { background: var(--navy); color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* ===== CHAT WINDOW ===== */
+    .chat-window { display: none; flex-direction: column; height: calc(100vh - 130px); }
+    .chat-window.active { display: flex; }
+    .chat-header { padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; gap: 10px; }
+    .chat-back { font-size: 20px; cursor: pointer; color: var(--navy); }
+    .chat-header-info { flex: 1; }
+    .chat-header-name { font-weight: 700; font-size: 15px; }
+    .chat-header-status { font-size: 11px; color: var(--success); }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px;
+      background: #f4f7ff; display: flex; flex-direction: column; gap: 8px;
+    }
+    .msg { max-width: 75%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.4; }
+    .msg.them { background: #fff; border: 1px solid var(--border-soft); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.me { background: var(--navy); color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg-time { font-size: 10px; color: var(--muted); margin-top: 2px; text-align: left; }
+    .msg.me .msg-time { color: rgba(255,255,255,0.6); }
+    .quota-notice { text-align: center; font-size: 12px; color: var(--muted); padding: 8px; background: #fff8e6; border-radius: 8px; border: 1px solid var(--gold); margin: 8px 0; }
+    .chat-footer { padding: 10px 12px; background: #fff; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; align-items: center; }
+    .chat-input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 22px; font-family: 'Heebo'; font-size: 14px; background: var(--bg); }
+    .chat-input:focus { outline: none; border-color: var(--gold); }
+    .chat-send { width: 42px; height: 42px; background: var(--navy); color: white; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .chat-lock { text-align: center; padding: 16px; }
+
+    /* ===== PROFILE ===== */
+    .profile-hero {
+      background: linear-gradient(180deg, var(--navy) 0%, var(--navy-light) 100%);
+      padding: 20px; color: white; text-align: center;
+    }
+    .profile-avatar-wrap { position: relative; display: inline-block; }
+    .profile-avatar {
+      width: 90px; height: 90px; background: rgba(255,255,255,0.15);
+      border-radius: 50%; border: 3px solid var(--gold); overflow: hidden;
+      display: flex; align-items: center; justify-content: center; font-size: 36px;
+      margin: 0 auto 10px; cursor: pointer;
+    }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .profile-avatar-edit {
+      position: absolute; bottom: 10px; left: -2px;
+      background: var(--gold); width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+    }
+    .profile-name { font-family: 'Frank Ruhl Libre'; font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+    .profile-meta { font-size: 13px; opacity: 0.75; }
+    .profile-complete { margin-top: 12px; }
+    .progress-bar { background: rgba(255,255,255,0.2); border-radius: 20px; height: 6px; margin: 6px 0; }
+    .progress-fill { background: var(--gold); height: 100%; border-radius: 20px; transition: width 0.5s; }
+    .completion-text { font-size: 12px; opacity: 0.8; }
+    .ai-analysis-box {
+      background: linear-gradient(135deg, #fff8e6, #fffdf4);
+      border: 1.5px solid var(--gold); border-radius: 12px;
+      padding: 12px; margin-top: 8px; display: none;
+    }
+    .ai-analysis-box.show { display: block; }
+
+    /* ===== PREMIUM ===== */
+    .premium-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #2d3f7c 100%);
+      padding: 28px 20px; text-align: center; color: white;
+    }
+    .premium-crown { font-size: 40px; margin-bottom: 8px; }
+    .premium-title { font-family: 'Frank Ruhl Libre'; font-size: 24px; font-weight: 900; color: var(--gold); }
+    .premium-sub { font-size: 13px; opacity: 0.8; margin-top: 6px; }
+    .plan-card {
+      background: #fff; border: 1.5px solid var(--border-soft); border-radius: 14px;
+      padding: 16px; margin: 0 16px 12px; transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer; position: relative;
+    }
+    .plan-card.popular {
+      border-color: var(--gold);
+      box-shadow: 0 4px 20px rgba(201,168,76,0.2);
+    }
+    .popular-tag {
+      position: absolute; top: -10px; right: 16px;
+      background: var(--gold); color: white; padding: 2px 12px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .plan-header { display: flex; justify-content: space-between; align-items: center; }
+    .plan-name { font-weight: 700; font-size: 15px; color: var(--navy); }
+    .plan-price { font-family: 'Frank Ruhl Libre'; font-size: 22px; font-weight: 900; color: var(--navy); }
+    .plan-price span { font-size: 14px; font-weight: 400; color: var(--muted); }
+    .plan-features { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .plan-feature { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .plan-feature::before { content: '✓'; color: var(--success); font-weight: 700; font-size: 13px; }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 16px; }
+    .feature-item { background: #fff; border-radius: 12px; padding: 14px; text-align: center; border: 1px solid var(--border-soft); }
+    .feature-icon { font-size: 24px; margin-bottom: 6px; }
+    .feature-name { font-size: 12px; font-weight: 700; color: var(--navy); }
+    .feature-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ===== PAYMENT ===== */
+    .payment-overlay {
+      position: fixed; inset: 0; background: rgba(10,15,30,0.6);
+      z-index: 3000; display: none; align-items: flex-end; justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .payment-overlay.show { display: flex; }
+    .payment-sheet {
+      background: #fff; width: 100%; max-width: 480px;
+      border-radius: 24px 24px 0 0; padding: 24px 20px 32px;
+      animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+      max-height: 92vh; overflow-y: auto;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin: 0 auto 20px; }
+    .sheet-title { font-family: 'Frank Ruhl Libre'; font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 4px; }
+    .sheet-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .pay-method {
+      border: 2px solid var(--border); border-radius: 10px; padding: 12px 8px;
+      text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600;
+    }
+    .pay-method.active { border-color: var(--gold); background: #fffaf0; color: var(--gold); }
+    .pay-method-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+    .pay-divider { text-align: center; color: var(--muted); font-size: 13px; margin: 12px 0; position: relative; }
+    .pay-divider::before { content: ''; position: absolute; left: 0; top: 50%; width: 40%; height: 1px; background: var(--border); }
+    .pay-divider::after { content: ''; position: absolute; right: 0; top: 50%; width: 40%; height: 1px; background: var(--border); }
+    .card-input-row { display: flex; gap: 8px; }
+    .card-input-row .form-group { flex: 1; }
+    .secure-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: #f0fff4; border: 1px solid #d0f0dc; border-radius: 8px;
+      padding: 10px 12px; margin: 12px 0; font-size: 12px; color: #2d7a4a;
+    }
+    .order-summary {
+      background: var(--bg); border-radius: 10px; padding: 14px; margin-bottom: 16px;
+    }
+    .order-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .order-row.total { font-weight: 700; font-size: 15px; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+    .payment-footer { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; line-height: 1.6; }
+
+    /* ===== SUCCESS MODAL ===== */
+    .success-overlay {
+      position: fixed; inset: 0; background: rgba(10,15,30,0.6);
+      z-index: 4000; display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .success-overlay.show { display: flex; }
+    .success-modal {
+      background: #fff; border-radius: 20px; padding: 32px 24px;
+      text-align: center; width: 90%; max-width: 320px;
+      animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-icon { font-size: 52px; margin-bottom: 12px; }
+    .success-title { font-family: 'Frank Ruhl Libre'; font-size: 22px; font-weight: 900; color: var(--navy); }
+    .success-sub { font-size: 14px; color: var(--muted); margin: 8px 0 20px; }
+
+    /* ===== LIKES ===== */
+    .likes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
+    .like-card {
+      background: #fff; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border-soft); box-shadow: 0 2px 10px rgba(26,39,68,0.07);
+    }
+    .like-img { height: 130px; background: linear-gradient(135deg, #e8eeff, #f0e8ff); display: flex; align-items: center; justify-content: center; font-size: 45px; position: relative; }
+    .like-blur .like-img { filter: blur(8px); }
+    .lock-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); font-size: 24px; }
+    .like-info { padding: 10px; }
+    .like-name { font-weight: 700; font-size: 13px; }
+    .like-city { font-size: 11px; color: var(--muted); }
+    .like-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .like-btn-sm { flex: 1; padding: 7px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Heebo'; border: none; }
+    .like-accept { background: var(--navy); color: white; }
+    .like-decline { background: #f5f5f5; color: var(--muted); }
+
+    /* ===== VIEWS ===== */
+    .view-item {
+      display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .view-avatar { width: 44px; height: 44px; background: var(--bg); border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .view-info { flex: 1; }
+    .view-name { font-weight: 600; font-size: 14px; }
+    .view-time { font-size: 12px; color: var(--muted); }
+    .view-blur-name { filter: blur(5px); user-select: none; }
+
+    /* ===== PRIVACY SETTINGS ===== */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border-soft);
+    }
+    .toggle-info h4 { font-size: 14px; font-weight: 600; }
+    .toggle-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .toggle {
+      position: relative; width: 48px; height: 26px; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: #ddd; border-radius: 26px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; height: 20px; width: 20px;
+      left: 3px; bottom: 3px; background: white; border-radius: 50%;
+      transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--gold); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+    /* ===== BLOCKED ===== */
+    .blocked-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .blocked-avatar { width: 42px; height: 42px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; filter: grayscale(1); }
+    .unblock-btn { padding: 6px 12px; border: 1.5px solid var(--navy); background: none; border-radius: 8px; font-family: 'Heebo'; font-size: 12px; font-weight: 700; color: var(--navy); cursor: pointer; }
+
+    /* ===== NOTIFICATIONS ===== */
+    .notif-item {
+      display: flex; gap: 12px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border-soft); align-items: flex-start;
+    }
+    .notif-icon { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .notif-icon.like { background: #fff0f0; }
+    .notif-icon.msg { background: #f0f4ff; }
+    .notif-icon.view { background: #f0fff4; }
+    .notif-icon.sys { background: #fffaf0; }
+    .notif-text { flex: 1; }
+    .notif-text strong { font-size: 14px; }
+    .notif-text p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .notif-dot-new { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .notif-unread { background: #fffcf0; }
+
+    /* ===== MATCHMAKER ===== */
+    .shadchan-card {
+      background: linear-gradient(135deg, #fffaf0, #fff8e8);
+      border: 1.5px solid var(--gold); border-radius: 14px; padding: 16px;
+      margin: 0 16px 12px;
+    }
+    .shadchan-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .shadchan-avatar { font-size: 28px; }
+    .shadchan-name { font-weight: 700; font-size: 14px; }
+    .shadchan-title { font-size: 12px; color: var(--muted); }
+    .shadchan-rating { color: var(--gold); font-size: 12px; margin-top: 2px; }
+    .shadchan-stats { display: flex; gap: 16px; margin-bottom: 10px; }
+    .stat-item { text-align: center; }
+    .stat-num { font-weight: 900; font-size: 18px; color: var(--navy); font-family: 'Frank Ruhl Libre'; }
+    .stat-label { font-size: 10px; color: var(--muted); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; line-height: 1.6; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed; bottom: 0; width: 100%;
+      display: flex; background: #fff; border-top: 1px solid var(--border-soft);
+      padding-bottom: env(safe-area-inset-bottom); z-index: 900;
+      box-shadow: 0 -4px 20px rgba(26,39,68,0.08);
+    }
+    .bottom-nav button {
+      flex: 1; border: none; background: transparent;
+      padding: 11px 4px; font-size: 11px; color: var(--muted);
+      cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; font-family: 'Heebo'; transition: color 0.2s;
+    }
+    .bottom-nav button .nav-icon { font-size: 20px; }
+    .bottom-nav button.active { color: var(--navy); font-weight: 700; }
+    .bottom-nav button.active .nav-indicator { width: 20px; height: 3px; background: var(--gold); border-radius: 2px; margin-top: 2px; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      background: var(--navy); color: #fff; padding: 11px 22px; border-radius: 10px;
+      opacity: 0; transition: opacity 0.25s; z-index: 5000; pointer-events: none;
+      font-size: 13px; font-weight: 500; white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(26,39,68,0.25);
+    }
+    .toast.show { opacity: 1; }
+
+    /* ===== SPINNER ===== */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== VERIFY BADGE ===== */
+    .verify-badge { background: #e8f8ef; color: #1a7a4a; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+    .unverified { background: #fff3e0; color: #e67e22; }
   </style>
 </head>
 <body>
 
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <!-- OVERLAYS -->
+  <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
-    <h2 style="font-family: 'Frank Ruhl Libre'; color: var(--navy); margin-bottom: 20px;">שירות וניהול</h2>
-    <div class="menu-item" onclick="showTab('home'); toggleSidebar();">🏠 דף הבית</div>
-    <div class="menu-item" onclick="showTab('likes'); toggleSidebar();">❤️ לייקים שקיבלתי</div>
-    <div class="menu-item" onclick="showTab('views'); toggleSidebar();">👀 מי צפה בי?</div>
-    <div class="menu-item" onclick="showTab('privacy'); toggleSidebar();">🔒 הגדרות פרטיות</div>
-    <div class="menu-item" onclick="showTab('blocked'); toggleSidebar();">🚫 חסומים</div>
-    <hr style="margin: 20px 0; opacity: 0.1;">
-    <div class="menu-item" style="color: var(--error);" onclick="confirmPause()">⏸️ השהיית חשבון</div>
-    <div class="menu-item" style="color: var(--error);" onclick="confirmDelete()">🗑️ מחיקת חשבון</div>
+    <div class="sidebar-header">
+      <div class="sidebar-avatar">👤</div>
+      <div>
+        <div class="sidebar-name">יוסי כהן</div>
+        <div class="sidebar-plan">✦ חבר רגיל</div>
+      </div>
+      <div class="sidebar-close" onclick="toggleMenu()">✕</div>
+    </div>
+    <div class="nav-item" onclick="showTab('home'); toggleMenu();">
+      <div class="nav-left">🏠 <span>דף הבית</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('notifications'); toggleMenu();">
+      <div class="nav-left">🔔 <span>התראות</span></div>
+      <span class="badge-pill">5</span>
+    </div>
+    <div class="nav-item" onclick="showTab('likes'); toggleMenu();">
+      <div class="nav-left">❤️ <span>לייקים שקיבלתי</span></div>
+      <span class="badge-pill">3</span>
+    </div>
+    <div class="nav-item" onclick="showTab('views'); toggleMenu();">
+      <div class="nav-left">👀 <span>מי צפה בפרופיל שלי?</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('favorites'); toggleMenu();">
+      <div class="nav-left">⭐ <span>שמורים שלי</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('shadchan'); toggleMenu();">
+      <div class="nav-left">💍 <span>שדכנים</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('privacy'); toggleMenu();">
+      <div class="nav-left">🔒 <span>הגדרות פרטיות</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('blocked'); toggleMenu();">
+      <div class="nav-left">🚫 <span>חסומים</span></div>
+    </div>
+    <div class="nav-item" onclick="showTab('help'); toggleMenu();">
+      <div class="nav-left">💬 <span>שאלות נפוצות ותמיכה</span></div>
+    </div>
+    <hr style="margin: 8px 0; opacity: 0.08;">
+    <div class="nav-item" style="color: var(--error);" onclick="confirmLogout()">
+      <div class="nav-left">🚪 <span>התנתקות</span></div>
+    </div>
+    <div class="nav-item" style="color: var(--error);" onclick="deleteAccount()">
+      <div class="nav-left">🗑️ <span>מחיקת חשבון</span></div>
+    </div>
   </div>
 
+  <!-- HEADER -->
   <header class="top-bar">
-    <button style="background:none; border:none; font-size:24px;" onclick="toggleSidebar()">☰</button>
+    <div onclick="toggleMenu()" style="cursor:pointer; font-size: 20px;">☰</div>
     <div class="logo">נשמ<span>ה</span>ות</div>
-    <div style="width:24px;"></div>
+    <div class="header-icons">
+      <span class="header-icon notif-dot" onclick="showTab('notifications')">🔔</span>
+    </div>
   </header>
 
   <div class="scroll-area">
-    
+
+    <!-- HOME -->
     <div id="tab-home" class="section active">
-      <div id="feed-container">
-        <div class="profile-card">
-          <div class="p-img">👩</div>
-          <div class="p-content">
-            <div style="font-family: 'Frank Ruhl Libre'; font-size: 24px; font-weight: 800;">שירה, 24</div>
-            <div style="color: var(--muted); font-size: 14px; margin-bottom: 10px;">ירושלים • חוזרת בתשובה • גובה 1.68</div>
-            <div class="btn-group">
-              <button class="btn btn-navy" onclick="showToast('לייק נשלח! ❤️')">שלח לייק</button>
-              <button class="btn btn-gold-outline" onclick="showToast('פתיחת צ\'אט...')">הודעה</button>
-            </div>
+      <div class="search-section">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="חיפוש לפי שם..." oninput="filterFeed(this.value)">
+        </div>
+        <div class="search-filters">
+          <select onchange="renderFeed()"><option value="">גיל</option><option>18-25</option><option>26-35</option><option>36-45</option><option>45+</option></select>
+          <input type="text" placeholder="עיר">
+          <select><option value="">מצב משפחתי</option><option>רווק/ה</option><option>גרוש/ה</option><option>אלמן/ה</option></select>
+          <select><option value="">רמה דתית</option><option>חרדי</option><option>דתי לאומי</option><option>מסורתי</option></select>
+          <select><option value="">מוצא</option><option>אשכנזי</option><option>ספרדי</option><option>תימני</option><option>מזרחי</option><option>אתיופי/ת</option><option>פרסי</option><option>מרוקאי</option><option>אחר</option></select>
+          <select><option value="">גובה</option><option>עד 160</option><option>160–170</option><option>170–180</option><option>180+</option></select>
+          <select><option value="">מין</option><option>זכר</option><option>נקבה</option></select>
+          <select><option value="">מדד התאמה AI</option><option>90%+</option><option>75%+</option><option>כל ההתאמות</option></select>
+          <button class="filter-btn" style="grid-column:span 3;" onclick="showToast('מסנן תוצאות...')">🔎 חפש</button>
+        </div>
+      </div>
+      <div class="feed-container" id="feed"></div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="tab-messages" class="section">
+      <div id="conv-list-view">
+        <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft); display:flex; justify-content:space-between; align-items:center;">
+          <span class="section-title" style="margin:0;">הודעות</span>
+          <span style="font-size:12px; color:var(--muted);">2 שיחות פעילות</span>
+        </div>
+        <div class="conv-list" id="conv-list"></div>
+        <div style="padding:16px;">
+          <div class="card" style="background:#fffaf0; border-color:var(--gold); text-align:center;">
+            <p style="font-size:13px; margin-bottom:10px; color:var(--navy);">💬 נגמרו לך ההודעות החינמיות (10/10)</p>
+            <button class="btn-gold" onclick="openPayment('monthly')">שדרג לפרימיום לשליחת הודעות ללא הגבלה</button>
           </div>
         </div>
       </div>
-    </div>
-
-    <div id="tab-profile" class="section">
-      <div style="background:white; padding:20px; border-radius:15px; box-shadow:var(--shadow);">
-        <h3 style="margin-bottom:15px;">עריכת פרופיל</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-            <div><label style="font-size:12px; color:var(--muted);">גובה</label><input type="number" step="0.01" placeholder="1.70" style="width:100%; padding:10px; border:1px solid #eee; border-radius:8px;"></div>
-            <div><label style="font-size:12px; color:var(--muted);">מזל</label><select style="width:100%; padding:10px; border:1px solid #eee; border-radius:8px;"><option>טלה</option><option>שור</option><option>תאומים</option><option>סרטן</option><option>אריה</option><option>בתולה</option><option>מאזניים</option><option>עקרב</option><option>קשת</option><option>גדי</option><option>דלי</option><option>דגים</option></select></div>
+      <div class="chat-window" id="chat-window">
+        <div class="chat-header">
+          <span class="chat-back" onclick="closeChatWindow()">→</span>
+          <div class="chat-header-info">
+            <div class="chat-header-name" id="chat-partner-name">מיכל א.</div>
+            <div class="chat-header-status">🟢 מחובר/ת עכשיו</div>
+          </div>
+          <span style="cursor:pointer; font-size:18px;" onclick="blockUser()">⋮</span>
         </div>
-        <div style="margin-bottom:15px;">
-            <label style="font-size:12px; color:var(--muted);">עדה / מוצא</label>
-            <input type="text" placeholder="ספרדי / אשכנזי..." style="width:100%; padding:10px; border:1px solid #eee; border-radius:8px;">
+        <div class="chat-messages" id="chat-msgs">
+          <div class="quota-notice">💡 נשארו לך <strong id="msg-quota">8</strong> הודעות חינמיות. <span style="color:var(--gold); cursor:pointer;" onclick="openPayment('monthly')">שדרג לללא הגבלה</span></div>
         </div>
-        <div style="margin-bottom:15px;">
-            <label style="font-size:12px; color:var(--muted);">בירורים (שמות ממליצים)</label>
-            <textarea style="width:100%; padding:10px; border:1px solid #eee; border-radius:8px; height:60px;"></textarea>
+        <div class="chat-footer">
+          <input class="chat-input" id="chat-in" type="text" placeholder="כתוב/י הודעה..." onkeypress="if(event.key==='Enter') sendChatMsg()">
+          <button class="chat-send" onclick="sendChatMsg()">⬆</button>
         </div>
-        <button class="btn btn-navy" style="width:100%;" onclick="showToast('הפרופיל נשמר!')">שמור שינויים</button>
       </div>
     </div>
 
-    <div id="tab-likes" class="section"><h3>לייקים שקיבלתי</h3><p style="margin-top:20px; color:var(--muted);">אין לייקים חדשים כרגע.</p></div>
-    <div id="tab-views" class="section"><h3>מי צפה בי?</h3><p style="margin-top:20px; color:var(--muted);">שידרגת לפרמיום? כאן תראה מי ביקר בפרופיל שלך.</p></div>
+    <!-- PROFILE -->
+    <div id="tab-profile" class="section">
+      <div class="profile-hero">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" onclick="document.getElementById('img-up').click()">
+            <img id="preview" alt="תמונת פרופיל">
+            <span id="avatar-emoji">👤</span>
+          </div>
+          <div class="profile-avatar-edit">✏️</div>
+        </div>
+        <input type="file" id="img-up" style="display:none;" accept="image/*" onchange="handleAI(event)">
+        <div class="profile-name">יוסי כהן</div>
+        <div class="profile-meta">ירושלים • 26 • <span class="verify-badge">✓ מאומת</span></div>
+        <div class="profile-complete">
+          <div class="completion-text">השלמת פרופיל: 65%</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+        </div>
+      </div>
 
-  </div>
+      <div id="ai-analysis-box" class="ai-analysis-box" style="margin:16px 16px 0;">
+        <div id="ai-stat">⏳ מנתח תמונה...</div>
+      </div>
 
-  <div id="premium-overlay" class="overlay">
-    <div class="modal">
-      <h2 style="text-align:center; color:var(--navy); margin-bottom:20px;">שדרוג לפרימיום 💎</h2>
-      <div class="plan-card" onclick="selectPlan(this)"><div><strong>חודש אחד</strong></div><div>₪25</div></div>
-      <div class="plan-card" onclick="selectPlan(this)"><div><strong>3 חודשים (רגיל)</strong></div><div>₪65</div></div>
-      <div class="plan-card active" onclick="selectPlan(this)"><div><strong>שנה מלאה (משתלם)</strong></div><div>₪200</div></div>
-      <button class="btn btn-navy" style="width:100%; margin-top:15px;" onclick="closePremium()">המשך לתשלום</button>
-      <button style="width:100%; background:none; border:none; margin-top:10px; color:var(--muted);" onclick="closePremium()">ביטול</button>
+      <div class="section-pad">
+        <!-- Verification -->
+        <div class="card">
+          <div class="card-title">✅ אימות חשבון</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:13px;">📱 טלפון</span>
+            <span class="verify-badge">✓ מאומת</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:13px;">📧 אימייל</span>
+            <span class="verify-badge unverified">⚠ לא מאומת</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:13px;">🪪 תעודת זהות</span>
+            <span class="verify-badge unverified">⚠ לא הועלה</span>
+          </div>
+          <button class="btn-outline" style="margin-top:12px;" onclick="showToast('קישור אימות נשלח לאימייל')">אמת אימייל</button>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="card">
+          <div class="card-title">📝 מידע בסיסי</div>
+          <div class="form-group"><label>שם מלא</label><input type="text" value="יוסי כהן"></div>
+          <div class="form-row">
+            <div class="form-group"><label>גיל</label><input type="number" value="26"></div>
+            <div class="form-group"><label>מגדר</label><select><option>זכר</option><option>נקבה</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>גובה (ס"מ)</label><input type="number" value="175" min="140" max="220" placeholder="175"></div>
+            <div class="form-group"><label>מצב משפחתי</label><select><option>רווק/ה</option><option>גרוש/ה</option><option>אלמן/ה</option></select></div>
+          </div>
+          <div class="form-group"><label>עיר מגורים</label><input type="text" value="ירושלים"></div>
+          <div class="form-group"><label>ילדים</label><select><option>ללא</option><option>1-2</option><option>3-4</option><option>5+</option></select></div>
+        </div>
+
+        <!-- Religious & Background -->
+        <div class="card">
+          <div class="card-title">✡️ רקע ואמונה</div>
+          <div class="form-row">
+            <div class="form-group"><label>רמה דתית</label><select><option>חרדי</option><option>דתי לאומי</option><option>מסורתי</option><option>חוזר בתשובה</option></select></div>
+            <div class="form-group"><label>מזל</label><select><option>טלה</option><option>שור</option><option>תאומים</option><option>סרטן</option><option>אריה</option><option>בתולה</option><option>מאזניים</option><option>עקרב</option><option>קשת</option><option>גדי</option><option>דלי</option><option>דגים</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>עדה / מוצא</label><select><option>אשכנזי</option><option>ספרדי</option><option>תימני</option><option>מזרחי</option><option>אתיופי/ת (ביתא ישראל)</option><option>פרסי</option><option>מרוקאי</option><option>עיראקי</option><option>תוניסאי</option><option>ליבי</option><option>הודי</option><option>בוכרי</option><option>גאורגי</option><option>רוסי</option><option>אחר</option></select></div>
+            <div class="form-group"><label>כיסוי ראש</label><select><option>כיפה סרוגה</option><option>כיפה שחורה</option><option>בלי כיפה</option><option>מטפחת</option><option>פאה</option><option>כובע</option></select></div>
+          </div>
+        </div>
+
+        <!-- Education & Career -->
+        <div class="card">
+          <div class="card-title">🎓 השכלה ועיסוק</div>
+          <div class="form-group"><label>תעסוקה / לימודים</label><input type="text" placeholder="לדוגמה: מהנדס / לומד בכולל"></div>
+          <div class="form-group"><label>השכלה</label><select><option>תיכונית</option><option>אקדמית</option><option>בעל מקצוע</option><option>לומד/ת בכולל/סמינר</option></select></div>
+          <div class="form-group"><label>הכנסה חודשית</label><select><option>עדיף לא לציין</option><option>עד ₪5,000</option><option>₪5,000-10,000</option><option>₪10,000-20,000</option><option>₪20,000+</option></select></div>
+        </div>
+
+        <!-- About -->
+        <div class="card">
+          <div class="card-title">💬 קצת עלי</div>
+          <div class="form-group"><label>על עצמי</label><textarea rows="4" placeholder="ספר/י על עצמך, מה חשוב לך, מה אתה/את מחפש/ת..."></textarea></div>
+          <div class="form-group"><label>תחביבים ועניינים</label><input type="text" placeholder="ספרים, בישול, טיולים..."></div>
+          <div class="form-group"><label>מה אני מחפש/ת בבן/בת זוג</label><textarea rows="3" placeholder="תאר/י את בן/בת הזוג האידאלי/ת..."></textarea></div>
+        </div>
+
+        <!-- Partner Preferences -->
+        <div class="card">
+          <div class="card-title">💑 העדפות לבן/בת זוג</div>
+          <div class="form-row">
+            <div class="form-group"><label>גיל מינימום</label><input type="number" value="22"></div>
+            <div class="form-group"><label>גיל מקסימום</label><input type="number" value="32"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>גובה מינימום (ס"מ)</label><input type="number" placeholder="155" min="140" max="220"></div>
+            <div class="form-group"><label>גובה מקסימום (ס"מ)</label><input type="number" placeholder="185" min="140" max="220"></div>
+          </div>
+          <div class="form-group"><label>מוצא מועדף</label><select><option>ללא העדפה</option><option>אשכנזי</option><option>ספרדי</option><option>תימני</option><option>מזרחי</option><option>אתיופי/ת</option><option>פרסי</option><option>מרוקאי</option><option>אחר</option></select></div>
+          <div class="form-group"><label>עיר/אזור מועדף</label><input type="text" placeholder="ירושלים, תל אביב, כל הארץ..."></div>
+          <div class="form-group"><label>ילדים</label><select><option>ללא הגבלה</option><option>בלי ילדים בלבד</option><option>עם ילדים גם בסדר</option></select></div>
+          <div class="form-group"><label>מדד התאמה AI מינימלי</label>
+            <select><option>כל ההתאמות</option><option>60%+</option><option>75%+</option><option>85%+</option><option>90%+ בלבד</option></select>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="saveProfile()">💾 שמור שינויים</button>
+      </div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div id="tab-premium" class="section">
+      <div class="premium-hero">
+        <div class="premium-crown">👑</div>
+        <div class="premium-title">שדרג לפרימיום</div>
+        <div class="premium-sub">גלה/י מי לייקאף אותך, שלח/י הודעות ללא הגבלה ועוד</div>
+      </div>
+
+      <div style="padding: 16px 0 8px;">
+        <div class="plan-card popular" onclick="openPayment('monthly')">
+          <div class="popular-tag">⭐ הכי פופולרי</div>
+          <div class="plan-header">
+            <div class="plan-name">חודשי</div>
+            <div class="plan-price">₪29 <span>/ חודש</span></div>
+          </div>
+          <div class="plan-features">
+            <div class="plan-feature">הודעות ללא הגבלה</div>
+            <div class="plan-feature">ראה מי לייקאף אותך</div>
+            <div class="plan-feature">הסתר שאתה/את מחובר/ת</div>
+            <div class="plan-feature">10 Super Likes ביום</div>
+          </div>
+          <button class="btn-gold" style="margin-top:14px;">בחר חבילה זו</button>
+        </div>
+
+        <div class="plan-card" onclick="openPayment('quarterly')">
+          <div class="plan-header">
+            <div class="plan-name">3 חודשים</div>
+            <div class="plan-price">₪69 <span>/ 3 חודשים</span></div>
+          </div>
+          <div style="font-size:12px; color:var(--success); margin-bottom:6px; font-weight:700;">חסכון של 21%</div>
+          <div class="plan-features">
+            <div class="plan-feature">כל יתרונות הפרימיום</div>
+            <div class="plan-feature">עדיפות בחיפוש</div>
+            <div class="plan-feature">תג "פרמיום" בפרופיל</div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px;">בחר חבילה זו</button>
+        </div>
+
+        <div class="plan-card" onclick="openPayment('yearly')">
+          <div class="plan-header">
+            <div class="plan-name">שנתי</div>
+            <div class="plan-price">₪199 <span>/ שנה</span></div>
+          </div>
+          <div style="font-size:12px; color:var(--success); margin-bottom:6px; font-weight:700;">חסכון של 43%!</div>
+          <div class="plan-features">
+            <div class="plan-feature">כל יתרונות הפרמיום</div>
+            <div class="plan-feature">שדכן אישי 1 ייעוץ</div>
+            <div class="plan-feature">ראה שפרופיל נקרא</div>
+          </div>
+          <button class="btn-primary" style="margin-top:14px;">בחר חבילה זו</button>
+        </div>
+      </div>
+
+      <div style="padding: 0 16px 8px;">
+        <h3 style="font-family:'Frank Ruhl Libre'; font-size:18px; color:var(--navy); margin-bottom:12px;">מה כולל הפרמיום?</h3>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item"><div class="feature-icon">💌</div><div class="feature-name">הודעות ללא הגבלה</div><div class="feature-desc">שוחח עם כולם</div></div>
+        <div class="feature-item"><div class="feature-icon">👁️</div><div class="feature-name">ראה מי לייקאף</div><div class="feature-desc">ללא טשטוש</div></div>
+        <div class="feature-item"><div class="feature-icon">⚡</div><div class="feature-name">Super Like</div><div class="feature-desc">10 ביום</div></div>
+        <div class="feature-item"><div class="feature-icon">🔝</div><div class="feature-name">עלה בתוצאות</div><div class="feature-desc">נראה יותר</div></div>
+        <div class="feature-item"><div class="feature-icon">🕵️</div><div class="feature-name">מצב סתר</div><div class="feature-desc">גלוש בסתר</div></div>
+        <div class="feature-item"><div class="feature-icon">📊</div><div class="feature-name">סטטיסטיקות</div><div class="feature-desc">מי צפה בי</div></div>
+      </div>
+    </div>
+
+    <!-- LIKES -->
+    <div id="tab-likes" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">❤️ לייקים שקיבלתי</div>
+      </div>
+      <div class="likes-grid" id="likes-grid"></div>
+    </div>
+
+    <!-- VIEWS -->
+    <div id="tab-views" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">👀 מי צפה בפרופיל שלי</div>
+      </div>
+      <div id="views-list"></div>
+      <div style="padding:16px;">
+        <div class="card" style="background:#fffaf0; border-color:var(--gold); text-align:center;">
+          <p style="font-size:13px; margin-bottom:10px; color:var(--navy);">🔒 רוצה לראות את כל מי שצפה בך? שדרג לפרמיום</p>
+          <button class="btn-gold" onclick="openPayment('monthly')">שדרג עכשיו</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAVORITES -->
+    <div id="tab-favorites" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">⭐ שמורים שלי</div>
+      </div>
+      <div class="feed-container" id="favorites-feed">
+        <div class="empty-state">
+          <div class="empty-icon">⭐</div>
+          <div class="empty-text">עוד לא שמרת אף אחד/ת<br>לחץ/י על ⭐ בפרופיל כדי לשמור</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHADCHAN -->
+    <div id="tab-shadchan" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">💍 שדכנים מקצועיים</div>
+      </div>
+      <div style="padding:16px 0;">
+        <div class="shadchan-card">
+          <div class="shadchan-header">
+            <div class="shadchan-avatar">👩‍💼</div>
+            <div>
+              <div class="shadchan-name">רבקה לוי</div>
+              <div class="shadchan-title">שדכנית מקצועית • 15 שנות ניסיון</div>
+              <div class="shadchan-rating">⭐⭐⭐⭐⭐ (128 ביקורות)</div>
+            </div>
+          </div>
+          <div class="shadchan-stats">
+            <div class="stat-item"><div class="stat-num">340</div><div class="stat-label">זוגות</div></div>
+            <div class="stat-item"><div class="stat-num">95%</div><div class="stat-label">שביעות רצון</div></div>
+            <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">שנים</div></div>
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">מתמחה בשידוכים לחרדים ודתיים-לאומיים. גישה אישית וחמה. תואם/ת שמחים!</p>
+          <button class="btn-primary" onclick="showToast('בקשתך נשלחה לרבקה לוי!')">📞 יצירת קשר</button>
+        </div>
+        <div class="shadchan-card">
+          <div class="shadchan-header">
+            <div class="shadchan-avatar">👨‍💼</div>
+            <div>
+              <div class="shadchan-name">משה ברקוביץ</div>
+              <div class="shadchan-title">שדכן • 8 שנות ניסיון</div>
+              <div class="shadchan-rating">⭐⭐⭐⭐ (64 ביקורות)</div>
+            </div>
+          </div>
+          <div class="shadchan-stats">
+            <div class="stat-item"><div class="stat-num">156</div><div class="stat-label">זוגות</div></div>
+            <div class="stat-item"><div class="stat-num">91%</div><div class="stat-label">שביעות רצון</div></div>
+            <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">שנים</div></div>
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">מתמחה בשידוכים לגרושים/אלמנים. הבנה עמוקה ויחס אישי.</p>
+          <button class="btn-primary" onclick="showToast('בקשתך נשלחה למשה ברקוביץ!')">📞 יצירת קשר</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="tab-notifications" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft); display:flex; justify-content:space-between; align-items:center;">
+        <span class="section-title" style="margin:0;">🔔 התראות</span>
+        <span style="font-size:12px; color:var(--gold); cursor:pointer;" onclick="showToast('סומן הכל כנקרא')">סמן הכל כנקרא</span>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div id="tab-privacy" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">🔒 הגדרות פרטיות</div>
+      </div>
+      <div class="section-pad">
+        <div class="card">
+          <div class="card-title">נראות פרופיל</div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>הצג פרופיל בחיפוש</h4><p>כאשר כבוי, לא יראו אותך</p></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>הצג סטטוס "מחובר"</h4><p>הסתר מתי אתה/את מחובר/ת</p></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>אפשר לראות שצפיתי</h4><p>כאשר כבוי, צפייתך תהיה אנונימית</p></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">הגדרות קשר</div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>קבל/י הודעות מכולם</h4><p>כאשר כבוי, רק ממועדפים</p></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>לייקים רק ממינים מסוימים</h4><p>סנן לפי מגדר</p></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">התראות Push</div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>התראות הודעות חדשות</h4></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>התראות לייקים</h4></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><h4>עדכוני מערכת</h4></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showToast('ההגדרות נשמרו!')">שמור הגדרות</button>
+      </div>
+    </div>
+
+    <!-- BLOCKED -->
+    <div id="tab-blocked" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">🚫 חסומים</div>
+      </div>
+      <div id="blocked-list">
+        <div class="blocked-item">
+          <div class="blocked-avatar">👤</div>
+          <div style="flex:1;"><strong style="font-size:14px;">ד.מ.</strong><br><small style="color:var(--muted);">נחסם לפני 3 ימים</small></div>
+          <button class="unblock-btn" onclick="showToast('המשתמש שוחרר מחסימה')">שחרר חסימה</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP -->
+    <div id="tab-help" class="section">
+      <div style="padding:14px; background:#fff; border-bottom:1px solid var(--border-soft);">
+        <div class="section-title" style="margin:0;">💬 עזרה ותמיכה</div>
+      </div>
+      <div class="section-pad">
+        <div class="card">
+          <div class="card-title">שאלות נפוצות</div>
+          <div id="faq-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📞 צור קשר עם תמיכה</div>
+          <div class="form-group"><label>נושא הפנייה</label><select><option>בעיה טכנית</option><option>דיווח על משתמש</option><option>שאלה על חיוב</option><option>אחר</option></select></div>
+          <div class="form-group"><label>תיאור</label><textarea rows="4" placeholder="תאר/י את הבעיה..."></textarea></div>
+          <button class="btn-primary" onclick="showToast('פנייתך נשלחה, נחזור אליך תוך 24 שעות')">שלח פנייה</button>
+        </div>
+        <div class="card" style="text-align:center; background:#fffaf0; border-color:var(--gold);">
+          <div style="font-size:24px; margin-bottom:8px;">📧</div>
+          <div style="font-weight:700; margin-bottom:4px;">support@neshamot.co.il</div>
+          <div style="font-size:12px; color:var(--muted);">זמינים א-ה, 9:00-18:00</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end scroll-area -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button id="nav-home" class="active" onclick="showTab('home')">
+      <span class="nav-icon">🏠</span>בית
+      <div class="nav-indicator"></div>
+    </button>
+    <button id="nav-messages" onclick="showTab('messages')">
+      <span class="nav-icon">💬</span>הודעות
+    </button>
+    <button id="nav-profile" onclick="showTab('profile')">
+      <span class="nav-icon">👤</span>פרופיל
+    </button>
+    <button id="nav-premium" onclick="showTab('premium')">
+      <span class="nav-icon">💎</span>פרמיום
+    </button>
+  </nav>
+
+  <!-- PAYMENT SHEET -->
+  <div class="payment-overlay" id="payment-overlay" onclick="closePaymentOutside(event)">
+    <div class="payment-sheet" id="payment-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title" id="pay-title">שדרוג לפרמיום</div>
+      <div class="sheet-sub" id="pay-sub">חיוב חד פעמי, ללא חידוש אוטומטי</div>
+
+      <div class="order-summary" id="order-summary">
+        <div class="order-row"><span id="plan-desc">פרמיום חודשי</span><span id="plan-price">₪29</span></div>
+        <div class="order-row"><span>מע"מ (17%)</span><span id="plan-tax">₪4.93</span></div>
+        <div class="order-row total"><span>סה"כ לתשלום</span><span id="plan-total">₪33.93</span></div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:8px;">שיטת תשלום</div>
+        <div class="payment-methods">
+          <div class="pay-method active" id="pm-card" onclick="selectPayMethod('card')">
+            <span class="pay-method-icon">💳</span>כרטיס אשראי
+          </div>
+          <div class="pay-method" id="pm-bit" onclick="selectPayMethod('bit')">
+            <span class="pay-method-icon">📱</span>Bit
+          </div>
+          <div class="pay-method" id="pm-paypal" onclick="selectPayMethod('paypal')">
+            <span class="pay-method-icon">🅿️</span>PayPal
+          </div>
+          <div class="pay-method" id="pm-apple" onclick="selectPayMethod('apple')">
+            <span class="pay-method-icon">🍎</span>Apple Pay
+          </div>
+        </div>
+      </div>
+
+      <div id="card-form">
+        <div class="form-group">
+          <label>מספר כרטיס</label>
+          <input type="text" id="card-num" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)" style="letter-spacing:1px;">
+        </div>
+        <div class="card-input-row">
+          <div class="form-group"><label>תוקף</label><input type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"></div>
+          <div class="form-group"><label>CVV</label><input type="text" placeholder="000" maxlength="3" type="password"></div>
+        </div>
+        <div class="form-group">
+          <label>שם בעל הכרטיס</label>
+          <input type="text" placeholder="כפי שמופיע על הכרטיס">
+        </div>
+        <div class="form-group">
+          <label>מספר תשלומים</label>
+          <select><option>תשלום אחד</option><option>2 תשלומים</option><option>3 תשלומים</option></select>
+        </div>
+      </div>
+
+      <div id="bit-form" style="display:none; text-align:center; padding:20px 0;">
+        <div style="font-size:40px; margin-bottom:12px;">📱</div>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">תועבר לאפליקציית Bit לאישור התשלום</p>
+        <div style="background:#e8f5e9; border-radius:10px; padding:12px; font-size:13px;">
+          ₪<span id="bit-amount">33.93</span> לנשמות
+        </div>
+      </div>
+
+      <div id="paypal-form" style="display:none; text-align:center; padding:20px 0;">
+        <div style="font-size:40px; margin-bottom:12px;">🅿️</div>
+        <p style="font-size:14px; color:var(--muted);">תועבר ל-PayPal להשלמת התשלום</p>
+      </div>
+
+      <div id="apple-form" style="display:none; text-align:center; padding:20px 0;">
+        <div style="font-size:40px; margin-bottom:12px;">🍎</div>
+        <p style="font-size:14px; color:var(--muted);">אמת עם Face ID / Touch ID</p>
+      </div>
+
+      <div class="secure-badge">
+        🔒 <span>תשלום מאובטח SSL 256-bit. פרטי הכרטיס מוצפנים ומאובטחים על ידי Stripe.</span>
+      </div>
+
+      <button class="btn-gold" id="pay-btn" onclick="processPayment()">
+        🔒 שלם בצורה מאובטחת
+      </button>
+
+      <div class="payment-footer">
+        על ידי לחיצה על "שלם" אתה/את מסכים/ה ל<u>תנאי השימוש</u> ול<u>מדיניות הפרטיות</u> שלנו.<br>
+        ניתן לבטל בכל עת מהגדרות החשבון.
+      </div>
+
+      <button onclick="closePayment()" style="margin-top:12px; background:none; border:none; width:100%; text-align:center; color:var(--muted); font-size:13px; cursor:pointer; font-family:'Heebo';">ביטול</button>
     </div>
   </div>
 
-  <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="showTab('home')">🏠<span>בית</span></button>
-    <button class="nav-btn" onclick="showTab('likes')">❤️<span>לייקים</span></button>
-    <button class="nav-btn" onclick="showTab('premium')">💎<span>פרימיום</span></button>
-    <button class="nav-btn" onclick="showTab('profile')">👤<span>פרופיל</span></button>
-  </nav>
+  <!-- SUCCESS MODAL -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-modal">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">ברוך הבא לפרמיום!</div>
+      <div class="success-sub">חשבונך שודרג בהצלחה.<br>עכשיו ליהנות מכל היתרונות!</div>
+      <button class="btn-gold" onclick="closeSuccess()">נסה/י עכשיו!</button>
+    </div>
+  </div>
 
-  <div id="toast" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:var(--navy); color:white; padding:10px 20px; border-radius:30px; opacity:0; transition:0.3s; z-index:2000; pointer-events:none;"></div>
+  <div class="toast" id="toast"></div>
 
-  <script>
-    function showTab(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('tab-' + id).classList.add('active');
-      if (id === 'premium') { document.getElementById('premium-overlay').classList.add('show'); }
-    }
+<script>
+// ===== DATA =====
+const PROFILES = [
+  { id:1, name:"מיכל א.", age:24, city:"בני ברק", rel:"חרדית", score:8.9, match:94, emoji:"👩", about:"אוהבת בישול ומתמחה בחינוך. מחפשת בן זוג רציני ומשפחתי.", sign:"מאזניים", verified:true, online:true, height:165, origin:"ספרדי" },
+  { id:2, name:"דוד כ.", age:28, city:"ירושלים", rel:"דתי לאומי", score:8.1, match:87, emoji:"👨", about:"לומד בישיבה ועובד כמתכנת. אדם חם ואוהב שמחה.", sign:"שור", verified:true, online:false, height:178, origin:"אשכנזי" },
+  { id:3, name:"שרה מ.", age:26, city:"פתח תקווה", rel:"מסורתית", score:7.8, match:72, emoji:"👩‍🦱", about:"אחות בבית חולים. ספורטיבית ומלאת חיים.", sign:"טלה", verified:false, online:true, height:162, origin:"אתיופי" },
+  { id:4, name:"יצחק ב.", age:30, city:"אשדוד", rel:"חרדי", score:9.2, match:91, emoji:"👨‍🦳", about:"מוסיקאי ומלמד. אדם שקט וסבלני.", sign:"קשת", verified:true, online:false, height:182, origin:"תימני" },
+];
 
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('sidebar-overlay').classList.toggle('show');
-    }
+const CONVERSATIONS = [
+  { id:1, name:"מיכל א.", emoji:"👩", preview:"היי! שמחתי לקבל הודעה 😊", time:"עכשיו", unread:2, online:true },
+  { id:2, name:"דוד כ.", emoji:"👨", preview:"נפגש לקפה ביום ה?", time:"אתמול", unread:0, online:false },
+];
 
-    function closePremium() { document.getElementById('premium-overlay').classList.remove('show'); }
-    
-    function selectPlan(el) {
-      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-    }
+const LIKES_DATA = [
+  { name:"רחל ל.", city:"ירושלים", emoji:"👩‍🦲", blurred:false },
+  { name:"????", city:"תל אביב", emoji:"👩", blurred:true },
+  { name:"????", city:"חיפה", emoji:"👩‍🦱", blurred:true },
+];
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.innerText = msg; t.style.opacity = '1';
-      setTimeout(() => t.style.opacity = '0', 3000);
-    }
-    
-    function confirmPause() { if(confirm('להשהות את החשבון?')) showToast('החשבון הושהה'); }
-    function confirmDelete() { if(confirm('למחוק לצמיתות?')) showToast('החשבון נמחק'); }
-  </script>
+const VIEWS_DATA = [
+  { name:"אביגיל נ.", time:"לפני 5 דקות", emoji:"👩", blurred:false },
+  { name:"????", time:"לפני שעה", emoji:"👩‍🦳", blurred:true },
+  { name:"????", time:"אתמול", emoji:"👩", blurred:true },
+];
+
+const NOTIFICATIONS = [
+  { type:"like", icon:"❤️", text:"<strong>מיכל א.</strong> לייקאפה את הפרופיל שלך", time:"לפני 5 דקות", unread:true },
+  { type:"msg", icon:"💬", text:"<strong>דוד כ.</strong> שלח לך הודעה חדשה", time:"לפני 20 דקות", unread:true },
+  { type:"view", icon:"👁️", text:"3 אנשים צפו בפרופיל שלך היום", time:"לפני שעה", unread:true },
+  { type:"sys", icon:"🎉", text:"פרופילך קיבל 10 לייקים השבוע!", time:"אתמול", unread:false },
+  { type:"sys", icon:"💡", text:"השלם/י את הפרופיל לקבלת יותר פניות", time:"לפני 2 ימים", unread:false },
+];
+
+const FAQS = [
+  { q:"איך אני מעלה תמונה?", a:"גש/י לטאב פרופיל > לחץ/י על תמונת הפרופיל > בחר/י תמונה מהגלריה" },
+  { q:"כמה הודעות ניתן לשלוח חינם?", a:"ניתן לשלוח 10 הודעות חינמיות. לשליחה ללא הגבלה שדרג/י לפרמיום" },
+  { q:"איך אני מבטל/ת מינוי?", a:"הגדרות פרופיל > מנוי פרמיום > ביטול מינוי" },
+  { q:"כיצד מתבצע אימות תמונה?", a:"ה-AI שלנו בודק שהתמונה מתאימה לקהילה ואינה פוגעת בצניעות" },
+];
+
+let currentPlan = 'monthly';
+let msgQuota = 8;
+let activeTab = 'home';
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderFeed();
+  renderConversations();
+  renderLikes();
+  renderViews();
+  renderNotifications();
+  renderFAQ();
+});
+
+// ===== NAVIGATION =====
+function showTab(t) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById('tab-'+t);
+  if (sec) sec.classList.add('active');
+  const nb = document.getElementById('nav-'+t);
+  if (nb) nb.classList.add('active');
+  activeTab = t;
+  if (t === 'messages') {
+    document.getElementById('conv-list-view').style.display = 'block';
+    document.getElementById('chat-window').classList.remove('active');
+  }
+  window.scrollTo && window.scrollTo(0,0);
+}
+
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ===== FEED =====
+function renderFeed() {
+  const feed = document.getElementById('feed');
+  if (!feed) return;
+  feed.innerHTML = '';
+  PROFILES.forEach(p => {
+    const matchColor = p.match >= 90 ? '#2ECC71' : p.match >= 75 ? '#C9A84C' : '#E74C3C';
+    const matchLabel = p.match >= 90 ? 'התאמה מצוינת!' : p.match >= 75 ? 'התאמה טובה' : 'התאמה חלקית';
+    feed.innerHTML += `
+      <div class="profile-card" id="card-${p.id}">
+        <div class="card-img">
+          <span>${p.emoji}</span>
+          ${p.online ? '<div class="online-dot"></div>' : ''}
+          <div class="ai-badge">🤖 ${p.score}</div>
+          <button class="block-btn" onclick="blockProfile(${p.id})">🚫 חסום</button>
+        </div>
+        <div class="card-body">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div class="card-name">${p.name}${p.verified ? ' <span class="verify-badge" style="font-size:10px;">✓</span>' : ''}</div>
+              <div class="card-meta">${p.city} • ${p.age} • ${p.height} ס"מ • ${p.origin} • ${p.rel} • ♏ ${p.sign}</div>
+            </div>
+          </div>
+          <div class="card-about">${p.about}</div>
+          <div style="margin:10px 0 4px; display:flex; align-items:center; gap:8px;">
+            <div style="flex:1; background:#eef0f8; border-radius:20px; height:8px; overflow:hidden;">
+              <div style="width:${p.match}%; height:100%; background:${matchColor}; border-radius:20px; transition:width 0.6s;"></div>
+            </div>
+            <span style="font-size:12px; font-weight:700; color:${matchColor}; white-space:nowrap;">🤖 ${p.match}% ${matchLabel}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-like" id="like-${p.id}" onclick="toggleLike(${p.id})">❤️ לייק</button>
+            <button class="btn-msg" onclick="openChat(${p.id})">💬 שלח הודעה</button>
+            <button class="btn-fav" onclick="toggleFav(${p.id})">⭐</button>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function filterFeed(val) {
+  document.querySelectorAll('.profile-card').forEach(card => {
+    const name = card.querySelector('.card-name').textContent.toLowerCase();
+    card.style.display = val === '' || name.includes(val.toLowerCase()) ? 'block' : 'none';
+  });
+}
+
+function toggleLike(id) {
+  const btn = document.getElementById('like-'+id);
+  if (btn.classList.contains('active')) {
+    btn.classList.remove('active');
+    btn.innerHTML = '❤️ לייק';
+    showToast('הסרת לייק');
+  } else {
+    btn.classList.add('active');
+    btn.innerHTML = '💔 הסר לייק';
+    showToast('לייק נשלח! 💕');
+  }
+}
+
+function toggleFav(id) {
+  showToast('נשמר למועדפים ⭐');
+}
+
+function blockProfile(id) {
+  if (confirm('האם לחסום משתמש זה?')) {
+    document.getElementById('card-'+id).remove();
+    showToast('המשתמש נחסם');
+  }
+}
+
+// ===== CONVERSATIONS =====
+function renderConversations() {
+  const list = document.getElementById('conv-list');
+  if (!list) return;
+  list.innerHTML = '';
+  CONVERSATIONS.forEach(c => {
+    list.innerHTML += `
+      <div class="conv-item" onclick="openChat(${c.id}, '${c.name}', '${c.emoji}')">
+        <div class="conv-avatar">${c.emoji}${c.online ? '<div class="conv-online"></div>' : ''}</div>
+        <div class="conv-info">
+          <div class="conv-name">${c.name}</div>
+          <div class="conv-preview">${c.preview}</div>
+        </div>
+        <div class="conv-meta">
+          <div class="conv-time">${c.time}</div>
+          ${c.unread > 0 ? `<div class="conv-unread">${c.unread}</div>` : ''}
+        </div>
+      </div>`;
+  });
+}
+
+function openChat(id, name, emoji) {
+  const pName = name || (PROFILES.find(p => p.id === id)?.name) || 'שיחה';
+  document.getElementById('chat-partner-name').textContent = pName;
+  document.getElementById('conv-list-view').style.display = 'none';
+  document.getElementById('chat-window').classList.add('active');
+  showTab('messages');
+}
+
+function closeChatWindow() {
+  document.getElementById('chat-window').classList.remove('active');
+  document.getElementById('conv-list-view').style.display = 'block';
+}
+
+function sendChatMsg() {
+  const inpt = document.getElementById('chat-in');
+  if (!inpt.value.trim()) return;
+  if (msgQuota <= 0) {
+    openPayment('monthly');
+    return;
+  }
+  const msgs = document.getElementById('chat-msgs');
+  const now = new Date().toLocaleTimeString('he', {hour:'2-digit', minute:'2-digit'});
+  msgs.innerHTML += `
+    <div class="msg me">
+      ${inpt.value}
+      <div class="msg-time">${now} ✓✓</div>
+    </div>`;
+  inpt.value = '';
+  msgQuota--;
+  document.getElementById('msg-quota').textContent = msgQuota;
+  msgs.scrollTop = msgs.scrollHeight;
+  // Simulate reply
+  setTimeout(() => {
+    const replies = ['תודה על ההודעה 😊', 'מעניין! ספר/י עוד', 'שמחתי לשמוע 🙏', 'בע"ה נדבר בקרוב'];
+    const r = replies[Math.floor(Math.random()*replies.length)];
+    msgs.innerHTML += `
+      <div class="msg them">
+        ${r}
+        <div class="msg-time">${now}</div>
+      </div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+
+// ===== LIKES =====
+function renderLikes() {
+  const grid = document.getElementById('likes-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  LIKES_DATA.forEach((l, i) => {
+    grid.innerHTML += `
+      <div class="like-card ${l.blurred ? 'like-blur' : ''}">
+        <div class="like-img">
+          ${l.emoji}
+          ${l.blurred ? '<div class="lock-icon">🔒</div>' : ''}
+        </div>
+        <div class="like-info">
+          <div class="like-name">${l.blurred ? '??????' : l.name}</div>
+          <div class="like-city">${l.blurred ? '????' : l.city}</div>
+          <div class="like-actions">
+            ${l.blurred
+              ? `<button class="like-btn-sm like-accept" onclick="openPayment('monthly')" style="flex:2;">👑 גלה/י</button>`
+              : `<button class="like-btn-sm like-accept" onclick="openChat(${i+10}, '${l.name}')">קבל/י</button>
+                 <button class="like-btn-sm like-decline" onclick="showToast('לייק נדחה')">דחה/י</button>`
+            }
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+// ===== VIEWS =====
+function renderViews() {
+  const list = document.getElementById('views-list');
+  if (!list) return;
+  VIEWS_DATA.forEach(v => {
+    list.innerHTML += `
+      <div class="view-item">
+        <div class="view-avatar">${v.emoji}</div>
+        <div class="view-info">
+          <div class="view-name ${v.blurred ? 'view-blur-name' : ''}">${v.blurred ? 'משתמש/ת פרמיום' : v.name}</div>
+          <div class="view-time">${v.time}</div>
+        </div>
+        ${!v.blurred ? `<button class="btn-outline" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openChat(99, '${v.name}')">שלח/י הודעה</button>` : ''}
+      </div>`;
+  });
+}
+
+// ===== NOTIFICATIONS =====
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  NOTIFICATIONS.forEach(n => {
+    list.innerHTML += `
+      <div class="notif-item ${n.unread ? 'notif-unread' : ''}">
+        <div class="notif-icon ${n.type}">${n.icon}</div>
+        <div class="notif-text">
+          <strong>${n.text}</strong>
+          <p>${n.time}</p>
+        </div>
+        ${n.unread ? '<div class="notif-dot-new"></div>' : ''}
+      </div>`;
+  });
+}
+
+// ===== FAQ =====
+function renderFAQ() {
+  const list = document.getElementById('faq-list');
+  if (!list) return;
+  FAQS.forEach((f, i) => {
+    list.innerHTML += `
+      <div style="border-bottom:1px solid var(--border-soft);">
+        <div onclick="toggleFAQ(${i})" style="padding:12px 0; cursor:pointer; display:flex; justify-content:space-between; font-size:14px; font-weight:600;">
+          ${f.q} <span id="faq-icon-${i}">+</span>
+        </div>
+        <div id="faq-ans-${i}" style="display:none; font-size:13px; color:var(--muted); padding-bottom:12px;">${f.a}</div>
+      </div>`;
+  });
+}
+
+function toggleFAQ(i) {
+  const ans = document.getElementById('faq-ans-'+i);
+  const icon = document.getElementById('faq-icon-'+i);
+  if (ans.style.display === 'none') {
+    ans.style.display = 'block';
+    icon.textContent = '−';
+  } else {
+    ans.style.display = 'none';
+    icon.textContent = '+';
+  }
+}
+
+// ===== AI IMAGE =====
+function handleAI(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const box = document.getElementById('ai-analysis-box');
+  const stat = document.getElementById('ai-stat');
+  box.classList.add('show');
+  stat.innerHTML = '<span class="spinner" style="border-top-color:var(--gold); border-color:rgba(201,168,76,0.3);"></span> מנתח תמונה בעזרת AI...';
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('preview');
+    const emoji = document.getElementById('avatar-emoji');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    if (emoji) emoji.style.display = 'none';
+    setTimeout(() => {
+      const score = (7.5 + Math.random() * 2).toFixed(1);
+      stat.innerHTML = `
+        <div style="font-weight:700; color:var(--success); margin-bottom:6px;">✅ תמונה אושרה!</div>
+        <div style="font-size:13px;">דירוג AI: <strong>${score}/10</strong> • צניעות: ✅ עובר</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">התמונה עומדת בקריטריוני הצניעות של הפלטפורמה</div>`;
+      showToast('התמונה אושרה! 🎉');
+    }, 2000);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== PAYMENT =====
+const PLANS = {
+  monthly:  { desc:'פרמיום חודשי', price:29, tax:4.93, total:33.93 },
+  quarterly:{ desc:'פרמיום 3 חודשים', price:69, tax:11.73, total:80.73 },
+  yearly:   { desc:'פרמיום שנתי', price:199, tax:33.83, total:232.83 },
+};
+
+function openPayment(plan) {
+  currentPlan = plan || 'monthly';
+  const p = PLANS[currentPlan];
+  document.getElementById('pay-title').textContent = 'שדרוג לפרמיום 💎';
+  document.getElementById('pay-sub').textContent = p.desc;
+  document.getElementById('plan-desc').textContent = p.desc;
+  document.getElementById('plan-price').textContent = '₪'+p.price;
+  document.getElementById('plan-tax').textContent = '₪'+p.tax;
+  document.getElementById('plan-total').textContent = '₪'+p.total;
+  document.getElementById('bit-amount').textContent = p.total;
+  document.getElementById('payment-overlay').classList.add('show');
+  selectPayMethod('card');
+}
+
+function closePayment() {
+  document.getElementById('payment-overlay').classList.remove('show');
+}
+
+function closePaymentOutside(e) {
+  if (e.target === document.getElementById('payment-overlay')) closePayment();
+}
+
+function selectPayMethod(method) {
+  ['card','bit','paypal','apple'].forEach(m => {
+    document.getElementById('pm-'+m).classList.remove('active');
+    document.getElementById(m+'-form').style.display = 'none';
+  });
+  document.getElementById('pm-'+method).classList.add('active');
+  document.getElementById(method+'-form').style.display = method === 'card' ? 'block' : 'block';
+  const btn = document.getElementById('pay-btn');
+  if (method === 'bit') btn.textContent = '📱 פתח Bit לתשלום';
+  else if (method === 'apple') btn.textContent = '🍎 שלם עם Apple Pay';
+  else if (method === 'paypal') btn.textContent = '🅿️ המשך ל-PayPal';
+  else btn.textContent = '🔒 שלם בצורה מאובטחת';
+}
+
+function formatCard(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 2) v = v.substring(0,2)+'/'+v.substring(2);
+  input.value = v;
+}
+
+function processPayment() {
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> מעבד תשלום...';
+  setTimeout(() => {
+    closePayment();
+    btn.disabled = false;
+    btn.textContent = '🔒 שלם בצורה מאובטחת';
+    document.getElementById('success-overlay').classList.add('show');
+  }, 2200);
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  showTab('home');
+  showToast('ברוך הבא לפרמיום! 🎉');
+}
+
+// ===== PROFILE SAVE =====
+function saveProfile() {
+  const btn = event.target;
+  btn.innerHTML = '<span class="spinner"></span> שומר...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '💾 שמור שינויים';
+    btn.disabled = false;
+    showToast('הפרופיל עודכן בהצלחה! ✅');
+  }, 1200);
+}
+
+// ===== MISC =====
+function blockUser() {
+  if (confirm('האם לחסום משתמש זה?')) {
+    closeChatWindow();
+    showToast('המשתמש נחסם');
+  }
+}
+
+function confirmLogout() {
+  if (confirm('להתנתק מהחשבון?')) showToast('מתנתק...');
+}
+
+function deleteAccount() {
+  if (confirm('האם אתה/את בטוח/ה שברצונך למחוק את החשבון? פעולה זו בלתי הפיכה.')) {
+    showToast('בקשה למחיקת חשבון נשלחה');
+    toggleMenu();
+  }
+}
+
+function showToast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
 </body>
 </html>
