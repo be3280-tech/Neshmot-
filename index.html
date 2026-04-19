@@ -7,164 +7,181 @@
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff; --border: rgba(26, 39, 68, 0.08);
+      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff; 
+      --border: rgba(26, 39, 68, 0.08); --success: #27ae60;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--cream); color: var(--navy); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-    /* Header & Menu */
+    /* Header */
     .app-header { background: var(--white); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 100; }
-    .menu-btn { font-size: 24px; cursor: pointer; }
+    .menu-btn { font-size: 24px; cursor: pointer; position: relative; }
     .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 900; color: var(--gold); }
+    .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-left: 5px; }
 
-    /* Side Drawer */
-    .drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--navy); color: white; z-index: 1000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px 25px; }
+    /* Side Drawer (Advanced) */
+    .drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--navy); color: white; z-index: 1100; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px 25px; overflow-y: auto; }
     .drawer.open { left: 0; box-shadow: 5px 0 25px rgba(0,0,0,0.3); }
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1050; }
     .drawer-overlay.active { display: block; }
-    .drawer li { list-style: none; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+    .drawer h2 { font-family: 'Frank Ruhl Libre'; margin-bottom: 30px; color: var(--gold); }
+    .drawer li { list-style: none; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 15px; }
 
-    /* Main Content */
-    .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 90px; }
+    /* Advanced Filters */
+    .filters-scroll { background: var(--white); padding: 10px 15px; display: flex; gap: 10px; border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; }
+    .filter-pill { padding: 6px 14px; background: #f0f0f0; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid transparent; }
+    .filter-pill.active { background: var(--navy); color: white; }
+
+    /* Feed & Cards */
+    .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
     .page { display: none; animation: fadeIn 0.3s; }
     .page.active { display: block; }
 
-    /* Compact Feed Card */
     .user-card { 
       background: var(--white); border-radius: 20px; overflow: hidden; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border);
-      width: 90%; margin-left: auto; margin-right: auto; cursor: pointer;
+      width: 92%; margin-left: auto; margin-right: auto; cursor: pointer; position: relative;
     }
-    .card-img { height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 50px; position: relative; }
+    .verified-v { position: absolute; top: 10px; right: 10px; background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; z-index: 5; }
+    .card-img { height: 180px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 50px; }
     .card-info { padding: 12px; }
-    .card-info h3 { font-family: 'Frank Ruhl Libre'; font-size: 18px; }
+    .card-info h3 { font-family: 'Frank Ruhl Libre'; font-size: 17px; display: flex; align-items: center; gap: 5px; }
 
     /* Floating Chat Button */
     .floating-chat { 
-      position: fixed; bottom: 85px; left: 20px; width: 60px; height: 60px; 
+      position: fixed; bottom: 85px; left: 20px; width: 55px; height: 55px; 
       background: var(--gold); border-radius: 50%; box-shadow: 0 4px 15px rgba(201,168,76,0.4); 
-      display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; cursor: pointer; z-index: 900;
+      display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; cursor: pointer; z-index: 900;
     }
 
-    /* Profile View (Full) */
-    .profile-view { position: fixed; inset: 0; background: var(--cream); z-index: 1100; display: none; flex-direction: column; overflow-y: auto; }
-    .profile-view.active { display: flex; }
-    .back-btn { position: absolute; top: 20px; left: 20px; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; z-index: 10; }
-    .img-gallery { height: 350px; background: var(--navy); display: flex; overflow-x: auto; snap-type: x mandatory; }
-    .gallery-img { min-width: 100%; height: 100%; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 100px; snap-align: start; }
-    .info-section { padding: 25px; background: white; border-top-right-radius: 30px; border-top-left-radius: 30px; margin-top: -30px; position: relative; }
-
-    /* Settings Group */
-    .settings-group { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
-    .settings-group label { display: block; font-size: 13px; font-weight: bold; color: var(--gold); margin-bottom: 8px; }
-    .settings-input { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; }
-
-    /* Nav */
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 100; }
+    /* Bottom Nav */
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 1000; }
     .nav-item { flex: 1; border: none; background: none; color: #888; font-size: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
     .nav-item.active { color: var(--gold); font-weight: bold; }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Profile Modal (Advanced) */
+    .profile-view { position: fixed; inset: 0; background: var(--cream); z-index: 2000; display: none; flex-direction: column; overflow-y: auto; }
+    .profile-view.active { display: flex; }
+    .back-btn { position: absolute; top: 20px; left: 20px; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .v-header { height: 300px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 80px; color: white; position: relative; }
+    .v-body { padding: 25px; background: white; border-radius: 30px 30px 0 0; margin-top: -30px; flex: 1; }
+
+    /* Input Fields */
+    .input-box { background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 12px; width: 100%; margin-bottom: 12px; font-size: 14px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-<div class="profile-view" id="profile-view">
-    <div class="back-btn" onclick="closeProfile()">✕</div>
-    <div class="img-gallery" id="v-gallery"></div>
-    <div class="info-section">
-        <h2 id="v-name" style="font-family:'Frank Ruhl Libre'; font-size: 28px;"></h2>
-        <div id="v-meta" style="color:#666; margin-bottom:15px"></div>
-        <hr style="opacity:0.05; margin-bottom:15px">
-        <div id="v-details" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:14px"></div>
-        <div id="v-bio" style="margin-top:20px; line-height:1.6; color:#444"></div>
-        <button class="nav-item active" style="width:100%; margin-top:30px; padding:15px; background:var(--gold); color:white; border-radius:15px; font-size:16px">שלח/י הודעה 💌</button>
-    </div>
-</div>
-
 <div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
 <div class="drawer" id="drawer">
-  <h2>נשמות</h2>
+  <div style="text-align:center; margin-bottom:20px">
+    <div style="font-size:50px">👤</div>
+    <div style="font-size:14px; color:var(--gold)">פרופיל מאומת <span style="color:#3498db">✓</span></div>
+  </div>
   <ul>
-    <li onclick="navigateTo('settings'); toggleDrawer()">⚙️ הגדרות חשבון</li>
-    <li onclick="navigateTo('views'); toggleDrawer()">👁️ מי צפה בי</li>
-    <li onclick="alert('מצב מנוי: חינמי')">💎 סטטוס מנוי</li>
-    <li onclick="alert('הגדרות פרטיות מעודכנות')">🔒 פרטיות</li>
-    <li onclick="location.reload()" style="color:#ff6b6b; margin-top:30px">🚪 התנתקות</li>
+    <li onclick="navigateTo('settings')">⚙️ הגדרות וסיסמא</li>
+    <li onclick="navigateTo('privacy')">🔒 הגדרות פרטיות (מצב נעלם)</li>
+    <li onclick="navigateTo('views')">👁️ מי צפה בי</li>
+    <li onclick="navigateTo('blocked')">🚫 רשימת חסומים</li>
+    <li onclick="alert('פנייה להנהלה...')">🛠️ צור קשר עם התמיכה</li>
+    <li onclick="location.reload()" style="color:#ff6b6b; margin-top:20px">🚪 התנתקות</li>
   </ul>
 </div>
 
 <header class="app-header">
   <div class="menu-btn" onclick="toggleDrawer()">☰</div>
   <div class="logo">נשמות</div>
-  <div style="width:24px"></div>
+  <div style="font-size:18px">🔍</div>
 </header>
 
-<div class="floating-chat" onclick="navigateTo('messages')">💬</div>
+<div class="filters-scroll">
+    <div class="filter-pill active">הכל</div>
+    <div class="filter-pill" onclick="filterBy('rel')">רמה דתית</div>
+    <div class="filter-pill" onclick="filterBy('age')">גיל</div>
+    <div class="filter-pill" onclick="filterBy('city')">עיר</div>
+    <div class="filter-pill" onclick="filterBy('height')">גובה</div>
+    <div class="filter-pill" onclick="filterBy('edu')">מוסד לימודים</div>
+</div>
 
 <main class="main-content">
   <div id="page-home" class="page active">
     <div id="feed"></div>
   </div>
 
-  <div id="page-views" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">צפו בפרופיל שלך</h2>
-    <div id="views-list"></div>
+  <div id="page-privacy" class="page">
+    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">פרטיות</h2>
+    <div style="background:white; padding:20px; border-radius:20px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+            <div>
+                <strong>מצב נעלם</strong>
+                <div style="font-size:12px; color:#888">צפה בפרופילים מבלי שידעו</div>
+            </div>
+            <input type="checkbox" onchange="alert('מצב נעלם הופעל')">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center">
+            <div>
+                <strong>הסתר את הפרופיל שלי</strong>
+                <div style="font-size:12px; color:#888">הפרופיל לא יופיע בחיפושים</div>
+            </div>
+            <input type="checkbox">
+        </div>
+    </div>
   </div>
 
   <div id="page-settings" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">הגדרות</h2>
-    <div class="settings-group">
-        <label>פרטי חשבון</label>
-        <input type="text" class="settings-input" value="user@example.com" readonly>
-        <label>שינוי סיסמא</label>
-        <input type="password" class="settings-input" placeholder="סיסמא נוכחית">
-        <input type="password" class="settings-input" placeholder="סיסמא חדשה">
-        <button onclick="alert('סיסמא שונתה')" style="background:var(--navy); color:white; padding:8px; border-radius:8px; border:none; width:100%">עדכן סיסמא</button>
-    </div>
-    <div class="settings-group">
-        <label>ניהול חסומים</label>
-        <p style="font-size:12px; color:#888">אין משתמשים ברשימת החסימה.</p>
-    </div>
-    <button onclick="if(confirm('למחוק את החשבון לצמיתות?')) location.reload()" style="color:#ff6b6b; font-weight:bold; background:none; border:none; width:100%; padding:20px">מחיקת חשבון 🗑️</button>
-  </div>
-
-  <div id="page-profile" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">הפרופיל שלי</h2>
-    <div class="settings-group">
-        <label>התמונות שלי</label>
-        <div style="display:flex; gap:10px">
-            <div style="width:60px; height:60px; background:#eee; border-radius:10px; display:flex; align-items:center; justify-content:center">👤</div>
-            <button onclick="alert('העלאה מהגלריה...')" style="background:var(--gold); color:white; border:none; padding:10px; border-radius:10px; flex:1">הוסף תמונה</button>
-        </div>
-    </div>
-    <div class="settings-group">
-        <label>גיל</label><input type="number" class="settings-input" id="my-age" value="25">
-        <label>מגורים</label><input type="text" class="settings-input" id="my-city" value="ירושלים">
-        <label>מזל</label>
-        <select class="settings-input" id="my-zodiac"><option>טלה</option><option>שור</option><option>תאומים</option><option>סרטן</option><option>אריה</option><option>בתולה</option><option>מאזניים</option><option>עקרב</option><option>קשת</option><option>גדי</option><option>דלי</option><option>דגים</option></select>
-        <label>השכלה</label><input type="text" class="settings-input" placeholder="תואר / ישיבה / מדרשה">
-        <label>על עצמי</label><textarea class="settings-input" style="height:80px">אוהב/ת לטייל וללמוד...</textarea>
-        <button class="nav-item active" style="width:100%; padding:12px; background:var(--gold); color:white; border-radius:10px" onclick="alert('נשמר!')">שמור הכל</button>
+    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">הגדרות חשבון</h2>
+    <div style="background:white; padding:20px; border-radius:20px">
+        <label style="font-size:12px; color:var(--gold)">דוא"ל</label>
+        <input type="text" class="input-box" value="user@soulmates.co.il">
+        <label style="font-size:12px; color:var(--gold)">שינוי סיסמא</label>
+        <input type="password" class="input-box" placeholder="סיסמא נוכחית">
+        <input type="password" class="input-box" placeholder="סיסמא חדשה">
+        <button class="nav-item active" style="width:100%; padding:12px; background:var(--navy); color:white; border-radius:10px; border:none">עדכן פרטים</button>
+        <button onclick="confirm('למחוק?') && location.reload()" style="width:100%; margin-top:20px; background:none; border:none; color:#ff6b6b; font-size:12px">מחיקת חשבון לצמיתות</button>
     </div>
   </div>
 
-  <div id="page-messages" class="page">
-      <h2 style="margin-bottom:20px">שיחות אחרונות</h2>
-      <p style="text-align:center; color:#888; margin-top:50px">אין הודעות חדשות</p>
+  <div id="page-views" class="page">
+    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">צפו בי לאחרונה</h2>
+    <div id="views-container"></div>
   </div>
 </main>
+
+<div class="profile-view" id="profile-view">
+    <div class="back-btn" onclick="closeProfile()">✕</div>
+    <div class="v-header" id="v-img"></div>
+    <div class="v-body">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+            <h2 id="v-name" style="font-family:'Frank Ruhl Libre'"></h2>
+            <div id="v-score" style="background:var(--gold); color:white; padding:4px 10px; border-radius:10px; font-size:12px"></div>
+        </div>
+        <p id="v-meta" style="color:#888; margin-bottom:20px"></p>
+        <div id="v-details" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:14px; background:#f9f9f9; padding:15px; border-radius:15px"></div>
+        <div id="v-bio" style="margin-top:20px; line-height:1.6"></div>
+        <div style="display:flex; gap:10px; margin-top:30px">
+            <button onclick="alert('נחסם')" style="flex:1; padding:15px; border-radius:15px; border:1px solid #ddd; background:none">חסימה</button>
+            <button onclick="alert('לייק נשלח')" style="flex:2; padding:15px; border-radius:15px; border:none; background:var(--gold); color:white; font-weight:bold">שלח/י לייק ❤️</button>
+        </div>
+    </div>
+</div>
+
+<div class="floating-chat" onclick="alert('פתיחת צ\'אט פרימיום...')">💬</div>
 
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="navigateTo('home')" id="n-home"><div class="nav-icon">🏠</div><span>בית</span></button>
   <button class="nav-item" onclick="navigateTo('views')" id="n-views"><div class="nav-icon">👁️</div><span>צפיות</span></button>
-  <button class="nav-item" onclick="navigateTo('profile')" id="n-profile"><div class="nav-icon">👤</div><span>פרופיל</span></button>
+  <button class="nav-item" onclick="alert('בקרוב!')"><div class="nav-icon">📍</div><span>קרובים</span></button>
+  <button class="nav-item" onclick="alert('הפרופיל שלי')"><div class="nav-icon">👤</div><span>פרופיל</span></button>
 </nav>
 
 <script>
-  const USERS = [
-    { id: 1, name: "מיכל", age: 24, city: "ירושלים", rel: "דתי לאומי", bio: "אוהבת טיולים, שבתות משפחתיות וקריאה. מחפשת מישהו עם לב זהב.", zodiac: "מאזניים", edu: "תואר בחינוך", score: 92, emoji: "👸", imgs: ["🌸", "📸", "✨"] },
-    { id: 2, name: "רחל", age: 26, city: "בני ברק", rel: "חרדי", bio: "מחפשת בן תורה רציני, אוהבת לצייר ולבשל בערבי שבת.", zodiac: "בתולה", edu: "סמינר הישן", score: 85, emoji: "🎨", imgs: ["🎨", "🏠"] }
+  // דאטה מפורט (כמו ב"שבע ברכות")
+  const DATA = [
+    { id: 1, name: "מיכל", age: 24, city: "ירושלים", rel: "דתי לאומי", height: "1.65", edu: "מכון טל", zodiac: "מאזניים", bio: "מחפשת קשר רציני למטרת נישואין, בחור עובד וקובע עתים לתורה.", score: 92, emoji: "🌸", verified: true, online: true },
+    { id: 2, name: "תהילה", age: 22, city: "בני ברק", rel: "חרדי", height: "1.60", edu: "סמינר לוסטיג", zodiac: "בתולה", bio: "בחורה שמורה, אוהבת חסד, מחפשת בן תורה.", score: 87, emoji: "👸", verified: false, online: false },
+    { id: 3, name: "נועה", age: 27, city: "פתח תקווה", rel: "מסורתי", height: "1.70", edu: "אוניברסיטת בר אילן", zodiac: "גדי", bio: "אוהבת לטייל, שומרת שבת וכשרות.", score: 84, emoji: "✨", verified: true, online: true }
   ];
 
   function toggleDrawer() {
@@ -176,59 +193,64 @@
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
     document.getElementById('page-' + p).classList.add('active');
-    const navBtn = document.getElementById('n-' + p);
-    if(navBtn) navBtn.classList.add('active');
+    if(document.getElementById('n-' + p)) document.getElementById('n-' + p).classList.add('active');
   }
 
   function renderFeed() {
     const feed = document.getElementById('feed');
-    feed.innerHTML = USERS.map(u => `
+    feed.innerHTML = DATA.map(u => `
       <div class="user-card" onclick="viewProfile(${u.id})">
-        <div class="card-img">
-          ${u.emoji}
-          <div style="position:absolute; bottom:10px; left:10px; background:white; padding:2px 8px; border-radius:10px; font-size:10px">✨ ${u.score}% התאמה</div>
-        </div>
+        ${u.verified ? '<div class="verified-v">✓</div>' : ''}
+        <div class="card-img">${u.emoji}</div>
         <div class="card-info">
-          <h3>${u.name}, ${u.age}</h3>
+          <h3>${u.online ? '<span class="online-dot"></span>' : ''}${u.name}, ${u.age}</h3>
           <p>📍 ${u.city} | ${u.rel}</p>
+          <div style="font-size:11px; color:var(--gold); margin-top:5px">התאמת AI: ${u.score}%</div>
         </div>
       </div>
     `).join('');
   }
 
   function viewProfile(id) {
-    const u = USERS.find(x => x.id === id);
-    const view = document.getElementById('profile-view');
-    
-    document.getElementById('v-gallery').innerHTML = u.imgs.map(im => `<div class="gallery-img">${im}</div>`).join('');
+    const u = DATA.find(x => x.id === id);
+    const modal = document.getElementById('profile-view');
+    document.getElementById('v-img').innerText = u.emoji;
     document.getElementById('v-name').innerText = `${u.name}, ${u.age}`;
-    document.getElementById('v-meta').innerText = `📍 ${u.city} | ${u.rel}`;
+    document.getElementById('v-score').innerText = `תאימות: ${u.score}%`;
+    document.getElementById('v-meta').innerText = `🕍 ${u.rel} | 📍 ${u.city}`;
     document.getElementById('v-details').innerHTML = `
-        <div><strong>מזל:</strong> ${u.zodiac}</div>
+        <div><strong>גובה:</strong> ${u.height}</div>
         <div><strong>השכלה:</strong> ${u.edu}</div>
+        <div><strong>מזל:</strong> ${u.zodiac}</div>
         <div><strong>סטטוס:</strong> רווק/ה</div>
-        <div><strong>מרחק:</strong> 4 ק"מ</div>
     `;
     document.getElementById('v-bio').innerText = u.bio;
-    
-    view.classList.add('active');
+    modal.classList.add('active');
   }
 
   function closeProfile() { document.getElementById('profile-view').classList.remove('active'); }
 
+  function filterBy(type) {
+    const val = prompt(`סנן לפי ${type}:`);
+    if(val) {
+        const filtered = DATA.filter(u => u[type].toString().includes(val));
+        renderFeed(filtered);
+    }
+  }
+
   window.onload = () => {
     renderFeed();
-    // סימולציית צפיות
-    document.getElementById('views-list').innerHTML = `
-        <div style="display:flex; align-items:center; gap:15px; background:white; padding:15px; border-radius:15px; border:1px solid var(--border)">
-            <div style="font-size:30px">👸</div>
+    // דוגמה לצפיות
+    document.getElementById('views-container').innerHTML = `
+        <div style="display:flex; align-items:center; gap:15px; background:white; padding:15px; border-radius:15px; margin-bottom:10px">
+            <div style="font-size:24px">🌸</div>
             <div>
                 <div style="font-weight:bold">מיכל צפתה בך</div>
-                <div style="font-size:12px; color:#888">לפני 20 דקות</div>
+                <div style="font-size:11px; color:#aaa">לפני 5 דקות</div>
             </div>
         </div>
     `;
   };
 </script>
 </body>
-</html>
+                                                                                                                                                                                    </html>
