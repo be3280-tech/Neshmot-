@@ -3,140 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>נשמות — פרימיום</title>
+  <title>נשמות — אפליקציית שידוכים</title>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff;
-      --border: rgba(26, 39, 68, 0.1);
+      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff; --border: rgba(26, 39, 68, 0.08);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--cream); color: var(--navy); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-    /* Header & Navigation */
-    .app-header { background: var(--white); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 15px rgba(0,0,0,0.04); z-index: 100; }
-    .app-logo { font-family: 'Frank Ruhl Libre', serif; font-size: 24px; font-weight: 900; color: var(--gold); }
-    
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); z-index: 100; }
-    .nav-item { border: none; background: none; color: #aaa; display: flex; flex-direction: column; align-items: center; flex: 1; cursor: pointer; font-size: 11px; }
-    .nav-item.active { color: var(--gold); }
-    .nav-icon { font-size: 22px; margin-bottom: 4px; }
+    /* Top Bar & Menu */
+    .app-header { background: var(--white); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 100; }
+    .menu-btn { font-size: 24px; cursor: pointer; }
+    .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 900; color: var(--gold); }
 
-    /* Main Area */
-    .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
-    .page { display: none; animation: fadeIn 0.3s ease; }
+    /* Side Drawer */
+    .drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--navy); color: white; z-index: 1000; transition: 0.3s; padding: 40px 25px; }
+    .drawer.open { left: 0; box-shadow: 5px 0 25px rgba(0,0,0,0.3); }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+    .drawer-overlay.active { display: block; }
+    .drawer h2 { font-family: 'Frank Ruhl Libre'; margin-bottom: 30px; color: var(--gold); }
+    .drawer li { list-style: none; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+
+    /* Filters Bar */
+    .filters { background: var(--white); padding: 10px 15px; display: flex; gap: 10px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .filter-input { padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; outline: none; white-space: nowrap; }
+
+    /* Feed & Cards (Reduced by 30%) */
+    .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 90px; }
+    .page { display: none; animation: fadeIn 0.3s; }
     .page.active { display: block; }
 
-    /* Profile Cards (Feed) */
-    .user-card { background: var(--white); border-radius: 25px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid var(--border); }
-    .card-img { height: 320px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 80px; cursor: pointer; }
-    .card-info { padding: 20px; }
-    .card-info h3 { font-family: 'Frank Ruhl Libre'; font-size: 22px; margin-bottom: 5px; }
-    
-    /* Profile Detail View (Modal) */
-    .profile-modal { position: fixed; inset: 0; background: var(--white); z-index: 2000; display: none; flex-direction: column; overflow-y: auto; padding: 20px; }
-    .profile-modal.active { display: flex; }
-    .close-modal { position: absolute; top: 20px; left: 20px; font-size: 24px; cursor: pointer; }
+    .user-card { 
+      background: var(--white); border-radius: 20px; overflow: hidden; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border);
+      width: 90%; margin-left: auto; margin-right: auto; /* Smaller width */
+    }
+    .card-img { height: 220px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 60px; position: relative; }
+    .compat-badge { position: absolute; top: 10px; right: 10px; background: var(--gold); color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+    .card-info { padding: 15px; }
+    .card-info h3 { font-family: 'Frank Ruhl Libre'; font-size: 18px; }
+    .card-info p { font-size: 13px; color: #666; }
 
-    /* Forms & Settings */
-    .form-box { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--gold); }
-    .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; outline: none; }
-    
-    /* Image Upload Slots */
-    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-    .photo-slot { aspect-ratio: 1/1; background: #f9f9f9; border: 2px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
-    .photo-slot img { width: 100%; height: 100%; object-fit: cover; }
+    /* AI Score Badge */
+    .ai-score-vessel { background: linear-gradient(135deg, var(--navy), #2d3f6b); color: white; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+    .score-circle { width: 60px; height: 60px; border: 3px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 10px auto; font-size: 20px; font-weight: bold; }
 
-    /* Chat List */
-    .chat-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 15px; margin-bottom: 10px; border: 1px solid var(--border); cursor: pointer; }
-    .avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-
-    /* Buttons */
-    .btn-gold { background: var(--gold); color: white; border: none; padding: 14px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; }
+    /* Nav */
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); }
+    .nav-item { flex: 1; border: none; background: none; color: #888; font-size: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .nav-item.active { color: var(--gold); font-weight: bold; }
+    .nav-icon { font-size: 20px; margin-bottom: 2px; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
 
-<div class="profile-modal" id="p-modal">
-    <div class="close-modal" onclick="closeProfile()">✕</div>
-    <div id="modal-content" style="margin-top:40px"></div>
+<div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <h2>נשמות</h2>
+  <ul>
+    <li onclick="navigateTo('settings')">⚙️ הגדרות חשבון</li>
+    <li onclick="alert('סטטוס מנוי: חינמי (10 הודעות נותרו)')">💎 מצב מנוי</li>
+    <li onclick="alert('הגדרות פרטיות נשמרו')">🔒 הגדרות פרטיות</li>
+    <li onclick="location.reload()" style="color:#ff6b6b; margin-top:20px">🚪 יציאה מהחשבון</li>
+  </ul>
 </div>
 
 <header class="app-header">
-  <div style="font-size:20px" onclick="navigateTo('settings')">⚙️</div>
-  <div class="app-logo">נשמות</div>
-  <div style="font-size:20px" onclick="navigateTo('messages')">💬</div>
+  <div class="menu-btn" onclick="toggleDrawer()">☰</div>
+  <div class="logo">נשמות</div>
+  <div style="width:24px"></div>
 </header>
+
+<div class="filters" id="filters-bar">
+    <input type="text" class="filter-input" placeholder="חפש עיר..." id="f-city" oninput="applyFilters()">
+    <select class="filter-input" id="f-age" onchange="applyFilters()">
+        <option value="">כל הגילאים</option>
+        <option value="20">20-25</option>
+        <option value="25">25-30</option>
+        <option value="30">30+</option>
+    </select>
+</div>
 
 <main class="main-content">
   <div id="page-home" class="page active">
     <div id="feed"></div>
   </div>
 
-  <div id="page-messages" class="page">
-    <h2 style="margin-bottom:20px">הודעות</h2>
-    <div id="inbox">
-        <div class="chat-item" onclick="alert('פתיחת שיחה...')">
-            <div class="avatar">י</div>
-            <div>
-                <div style="font-weight:bold">יעל</div>
-                <div style="font-size:12px; color:#888">היי, אשמח להכיר...</div>
-            </div>
-        </div>
-    </div>
+  <div id="page-near" class="page">
+    <h2 style="margin-bottom:15px">קרובים אלייך (5 ק"מ)</h2>
+    <div id="near-feed"></div>
   </div>
 
-  <div id="page-settings" class="page">
-    <h2 style="margin-bottom:20px">הגדרות חשבון</h2>
-    <div class="form-box">
-        <div class="input-group">
-            <label>שינוי סיסמא</label>
-            <input type="password" placeholder="סיסמא חדשה">
-        </div>
-        <button class="btn-gold" style="padding:8px" onclick="alert('סיסמא עודכנה')">עדכן סיסמא</button>
-    </div>
-    <div class="form-box">
-        <label style="font-weight:bold; font-size:14px">משתמשים חסומים</label>
-        <div style="margin-top:10px; font-size:13px; color:#888">אין משתמשים חסומים כרגע.</div>
-    </div>
-    <button class="btn-gold" style="background:#ff6b6b" onclick="location.reload()">התנתק מהמערכת</button>
+  <div id="page-likes" class="page">
+    <h2 style="margin-bottom:15px">מי עשה לי לייק?</h2>
+    <p style="text-align:center; color:#888; margin-top:40px">שדרגי לפרימיום כדי לראות</p>
   </div>
 
   <div id="page-profile" class="page">
-    <h2 style="margin-bottom:20px">הפרופיל שלי</h2>
-    <div class="form-box">
-        <label style="font-weight:bold; color:var(--gold)">התמונות שלי (לחץ להעלאה)</label>
-        <div class="photo-grid">
-            <div class="photo-slot" onclick="triggerFile(1)"><span id="plus-1">+</span><img id="img-1"><input type="file" id="file-1" hidden onchange="preview(this, 1)"></div>
-            <div class="photo-slot" onclick="triggerFile(2)"><span id="plus-2">+</span><img id="img-2"><input type="file" id="file-2" hidden onchange="preview(this, 2)"></div>
-            <div class="photo-slot" onclick="triggerFile(3)"><span id="plus-3">+</span><img id="img-3"><input type="file" id="file-3" hidden onchange="preview(this, 3)"></div>
-        </div>
+    <div class="ai-score-vessel">
+        <div>דירוג יופי AI שלי</div>
+        <div class="score-circle" id="my-ai-score">?</div>
+        <div style="font-size:12px">ה-AI משתמש בדירוג להתאמות מדויקות</div>
     </div>
-    <div class="form-box">
-        <div class="input-group"><label>שם מלא</label><input type="text" id="my-name"></div>
-        <div class="input-group"><label>עיר</label><input type="text" id="my-city"></div>
-        <div class="input-group"><label>רמה דתית</label><select id="my-rel"><option>דתי לאומי</option><option>חרדי</option><option>חב"ד</option></select></div>
-        <div class="input-group"><label>עליי</label><textarea id="my-bio" placeholder="תאר/י את עצמך..."></textarea></div>
-        <button class="btn-gold" onclick="alert('פרופיל עודכן!')">שמור שינויים</button>
+    
+    <div style="background:white; padding:20px; border-radius:20px; border:1px solid var(--border)">
+        <p style="font-weight:bold; margin-bottom:10px">העלאת תמונות לניתוח</p>
+        <input type="file" onchange="processAI(this)" style="font-size:12px">
+        <hr style="margin:20px 0; opacity:0.1">
+        <input type="text" class="filter-input" style="width:100%; margin-bottom:10px" placeholder="שם מלא">
+        <input type="text" class="filter-input" style="width:100%; margin-bottom:10px" placeholder="עיר">
+        <button class="nav-item active" style="width:100%; padding:10px; background:var(--gold); color:white; border-radius:10px">שמור פרופיל</button>
     </div>
   </div>
 </main>
 
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="navigateTo('home')" id="n-home"><div class="nav-icon">🏠</div><span>בית</span></button>
-  <button class="nav-item" onclick="navigateTo('messages')" id="n-messages"><div class="nav-icon">💬</div><span>הודעות</span></button>
+  <button class="nav-item" onclick="navigateTo('near')" id="n-near"><div class="nav-icon">📍</div><span>קרובים</span></button>
+  <button class="nav-item" onclick="navigateTo('likes')" id="n-likes"><div class="nav-icon">❤️</div><span>לייקים</span></button>
   <button class="nav-item" onclick="navigateTo('profile')" id="n-profile"><div class="nav-icon">👤</div><span>פרופיל</span></button>
 </nav>
 
 <script>
-  const USERS = [
-    { id: 1, name: "מיכל", age: 24, city: "ירושלים", rel: "דתי לאומי", bio: "אוהבת טיולים, שבתות משפחתיות וקריאה.", emoji: "🌸", zodiac: "מאזניים", edu: "תואר בחינוך" },
-    { id: 2, name: "רחל", age: 26, city: "בני ברק", rel: "חרדי", bio: "מחפשת בן תורה, אוהבת לצייר ולבשל.", emoji: "🎨", zodiac: "בתולה", edu: "סמינר" }
+  let users = [
+    { name: "מיכל", age: 24, city: "ירושלים", rel: "דתי לאומי", score: 92, emoji: "🌸" },
+    { name: "רחל", age: 26, city: "בני ברק", rel: "חרדי", score: 85, emoji: "🎨" },
+    { name: "נועה", age: 22, city: "תל אביב", rel: "מסורתי", score: 88, emoji: "👸" },
+    { name: "אפרת", age: 31, city: "חיפה", rel: "דתי לאומי", score: 90, emoji: "📖" }
   ];
+
+  function toggleDrawer() {
+    document.getElementById('drawer').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('active');
+  }
 
   function navigateTo(p) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
@@ -144,65 +146,59 @@
     document.getElementById('page-' + p).classList.add('active');
     const navBtn = document.getElementById('n-' + p);
     if(navBtn) navBtn.classList.add('active');
+    
+    // הסתרת פילטרים בדפים שאינם דף בית
+    document.getElementById('filters-bar').style.display = (p === 'home') ? 'flex' : 'none';
   }
 
-  function renderFeed() {
+  function applyFilters() {
+    const city = document.getElementById('f-city').value.toLowerCase();
+    const ageRange = document.getElementById('f-age').value;
+    
+    const filtered = users.filter(u => {
+      const cityMatch = u.city.toLowerCase().includes(city);
+      let ageMatch = true;
+      if(ageRange === "20") ageMatch = u.age >= 20 && u.age <= 25;
+      else if(ageRange === "25") ageMatch = u.age > 25 && u.age <= 30;
+      else if(ageRange === "30") ageMatch = u.age > 30;
+      return cityMatch && ageMatch;
+    });
+    
+    renderFeed(filtered);
+  }
+
+  function renderFeed(data) {
     const feed = document.getElementById('feed');
-    feed.innerHTML = USERS.map(u => `
+    feed.innerHTML = data.map(u => `
       <div class="user-card">
-        <div class="card-img" onclick="viewProfile(${u.id})">${u.emoji}</div>
+        <div class="card-img">
+          ${u.emoji}
+          <div class="compat-badge">התאמת AI: ${u.score}%</div>
+        </div>
         <div class="card-info">
           <h3>${u.name}, ${u.age}</h3>
-          <p style="font-size:14px; color:#666">📍 ${u.city} | ${u.rel}</p>
-          <div style="display:flex; gap:10px; margin-top:15px">
-            <button class="btn-gold" style="background:#eee; color:#333" onclick="alert('דלגת')">דלג</button>
-            <button class="btn-gold" onclick="alert('שלחת לייק ❤️')">לייק ❤️</button>
+          <p>📍 ${u.city} | ${u.rel}</p>
+          <div style="display:flex; gap:8px; margin-top:10px">
+            <button style="flex:1; padding:8px; border-radius:10px; border:1px solid #ddd; background:none">דלג</button>
+            <button style="flex:1; padding:8px; border-radius:10px; border:none; background:var(--gold); color:white">לייק ❤️</button>
           </div>
         </div>
       </div>
     `).join('');
   }
 
-  function viewProfile(id) {
-    const u = USERS.find(x => x.id === id);
-    const modal = document.getElementById('p-modal');
-    document.getElementById('modal-content').innerHTML = `
-        <div style="font-size:80px; text-align:center; margin-bottom:20px">${u.emoji}</div>
-        <h2 style="font-family:'Frank Ruhl Libre'">${u.name}, ${u.age}</h2>
-        <div style="color:var(--gold); font-weight:bold; margin-bottom:15px">${u.city} | ${u.rel}</div>
-        <hr style="opacity:0.1; margin-bottom:15px">
-        <p><strong>השכלה:</strong> ${u.edu}</p>
-        <p><strong>מזל:</strong> ${u.zodiac}</p>
-        <p style="margin-top:15px; line-height:1.6">${u.bio}</p>
-        <button class="btn-gold" style="margin-top:30px" onclick="blockUser('${u.name}')">חסום משתמש זה 🚫</button>
-    `;
-    modal.classList.add('active');
-  }
-
-  function closeProfile() { document.getElementById('p-modal').classList.remove('active'); }
-  
-  function blockUser(name) {
-    if(confirm(`האם לחסום את ${name}? המשתמש לא יוכל לראות אותך יותר.`)) {
-        alert(`${name} נחסם/ה.`);
-        closeProfile();
-    }
-  }
-
-  // העלאת תמונות
-  function triggerFile(id) { document.getElementById('file-' + id).click(); }
-  function preview(input, id) {
+  function processAI(input) {
     if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('img-' + id).src = e.target.result;
-            document.getElementById('plus-' + id).style.display = 'none';
-        }
-        reader.readAsDataURL(input.files[0]);
-        alert("תמונה עלתה! ה-AI מעדכן את הפרופיל שלך...");
+      alert("ה-AI מנתח את תווי הפנים שלך...");
+      setTimeout(() => {
+        const score = Math.floor(Math.random() * 3) + 7.5; // ציון דמו 7.5-9.5
+        document.getElementById('my-ai-score').innerText = score;
+        alert("הניתוח הושלם! הציון שלך הוא " + score + ". התאמות חדשות מחכות לך.");
+      }, 2000);
     }
   }
 
-  window.onload = renderFeed;
+  window.onload = () => renderFeed(users);
 </script>
 </body>
 </html>
