@@ -1,256 +1,81 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>נשמות — הפלטפורמה המלאה</title>
-  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold: #C9A84C; --navy: #1A2744; --cream: #FAF7F0; --white: #ffffff; 
-      --border: rgba(26, 39, 68, 0.08); --success: #27ae60;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Heebo', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--cream); color: var(--navy); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+import React, { useState } from 'react';
 
-    /* Header */
-    .app-header { background: var(--white); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 100; }
-    .menu-btn { font-size: 24px; cursor: pointer; position: relative; }
-    .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 900; color: var(--gold); }
-    .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; margin-left: 5px; }
-
-    /* Side Drawer (Advanced) */
-    .drawer { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--navy); color: white; z-index: 1100; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px 25px; overflow-y: auto; }
-    .drawer.open { left: 0; box-shadow: 5px 0 25px rgba(0,0,0,0.3); }
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1050; }
-    .drawer-overlay.active { display: block; }
-    .drawer h2 { font-family: 'Frank Ruhl Libre'; margin-bottom: 30px; color: var(--gold); }
-    .drawer li { list-style: none; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 15px; }
-
-    /* Advanced Filters */
-    .filters-scroll { background: var(--white); padding: 10px 15px; display: flex; gap: 10px; border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; }
-    .filter-pill { padding: 6px 14px; background: #f0f0f0; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid transparent; }
-    .filter-pill.active { background: var(--navy); color: white; }
-
-    /* Feed & Cards */
-    .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-    .page { display: none; animation: fadeIn 0.3s; }
-    .page.active { display: block; }
-
-    .user-card { 
-      background: var(--white); border-radius: 20px; overflow: hidden; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border);
-      width: 92%; margin-left: auto; margin-right: auto; cursor: pointer; position: relative;
-    }
-    .verified-v { position: absolute; top: 10px; right: 10px; background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; z-index: 5; }
-    .card-img { height: 180px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 50px; }
-    .card-info { padding: 12px; }
-    .card-info h3 { font-family: 'Frank Ruhl Libre'; font-size: 17px; display: flex; align-items: center; gap: 5px; }
-
-    /* Floating Chat Button */
-    .floating-chat { 
-      position: fixed; bottom: 85px; left: 20px; width: 55px; height: 55px; 
-      background: var(--gold); border-radius: 50%; box-shadow: 0 4px 15px rgba(201,168,76,0.4); 
-      display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; cursor: pointer; z-index: 900;
-    }
-
-    /* Bottom Nav */
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid var(--border); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 1000; }
-    .nav-item { flex: 1; border: none; background: none; color: #888; font-size: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .nav-item.active { color: var(--gold); font-weight: bold; }
-
-    /* Profile Modal (Advanced) */
-    .profile-view { position: fixed; inset: 0; background: var(--cream); z-index: 2000; display: none; flex-direction: column; overflow-y: auto; }
-    .profile-view.active { display: flex; }
-    .back-btn { position: absolute; top: 20px; left: 20px; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    .v-header { height: 300px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 80px; color: white; position: relative; }
-    .v-body { padding: 25px; background: white; border-radius: 30px 30px 0 0; margin-top: -30px; flex: 1; }
-
-    /* Input Fields */
-    .input-box { background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 12px; width: 100%; margin-bottom: 12px; font-size: 14px; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
-</head>
-<body>
-
-<div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
-<div class="drawer" id="drawer">
-  <div style="text-align:center; margin-bottom:20px">
-    <div style="font-size:50px">👤</div>
-    <div style="font-size:14px; color:var(--gold)">פרופיל מאומת <span style="color:#3498db">✓</span></div>
-  </div>
-  <ul>
-    <li onclick="navigateTo('settings')">⚙️ הגדרות וסיסמא</li>
-    <li onclick="navigateTo('privacy')">🔒 הגדרות פרטיות (מצב נעלם)</li>
-    <li onclick="navigateTo('views')">👁️ מי צפה בי</li>
-    <li onclick="navigateTo('blocked')">🚫 רשימת חסומים</li>
-    <li onclick="alert('פנייה להנהלה...')">🛠️ צור קשר עם התמיכה</li>
-    <li onclick="location.reload()" style="color:#ff6b6b; margin-top:20px">🚪 התנתקות</li>
-  </ul>
-</div>
-
-<header class="app-header">
-  <div class="menu-btn" onclick="toggleDrawer()">☰</div>
-  <div class="logo">נשמות</div>
-  <div style="font-size:18px">🔍</div>
-</header>
-
-<div class="filters-scroll">
-    <div class="filter-pill active">הכל</div>
-    <div class="filter-pill" onclick="filterBy('rel')">רמה דתית</div>
-    <div class="filter-pill" onclick="filterBy('age')">גיל</div>
-    <div class="filter-pill" onclick="filterBy('city')">עיר</div>
-    <div class="filter-pill" onclick="filterBy('height')">גובה</div>
-    <div class="filter-pill" onclick="filterBy('edu')">מוסד לימודים</div>
-</div>
-
-<main class="main-content">
-  <div id="page-home" class="page active">
-    <div id="feed"></div>
-  </div>
-
-  <div id="page-privacy" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">פרטיות</h2>
-    <div style="background:white; padding:20px; border-radius:20px">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-            <div>
-                <strong>מצב נעלם</strong>
-                <div style="font-size:12px; color:#888">צפה בפרופילים מבלי שידעו</div>
-            </div>
-            <input type="checkbox" onchange="alert('מצב נעלם הופעל')">
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center">
-            <div>
-                <strong>הסתר את הפרופיל שלי</strong>
-                <div style="font-size:12px; color:#888">הפרופיל לא יופיע בחיפושים</div>
-            </div>
-            <input type="checkbox">
-        </div>
+// קומפוננטת כרטיס משתמש - בהשראת ממשק שבע ברכות
+const UserCard = ({ name, age, city, score }) => (
+  <div className="border rounded-lg p-4 shadow-md bg-white text-right flex flex-col items-center">
+    <div className="w-24 h-24 bg-gray-200 rounded-full mb-2 flex items-center justify-center text-gray-500">
+      {score ? `${score}% התאמה` : "תמונה בבדיקה"}
     </div>
+    <h3 className="font-bold text-lg">{name}</h3>
+    <p className="text-sm text-gray-600">{age}, {city}</p>
+    <button className="mt-3 bg-blue-600 text-white px-4 py-1 rounded-full hover:bg-blue-700">
+      שלח הודעה
+    </button>
   </div>
+);
 
-  <div id="page-settings" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">הגדרות חשבון</h2>
-    <div style="background:white; padding:20px; border-radius:20px">
-        <label style="font-size:12px; color:var(--gold)">דוא"ל</label>
-        <input type="text" class="input-box" value="user@soulmates.co.il">
-        <label style="font-size:12px; color:var(--gold)">שינוי סיסמא</label>
-        <input type="password" class="input-box" placeholder="סיסמא נוכחית">
-        <input type="password" class="input-box" placeholder="סיסמא חדשה">
-        <button class="nav-item active" style="width:100%; padding:12px; background:var(--navy); color:white; border-radius:10px; border:none">עדכן פרטים</button>
-        <button onclick="confirm('למחוק?') && location.reload()" style="width:100%; margin-top:20px; background:none; border:none; color:#ff6b6b; font-size:12px">מחיקת חשבון לצמיתות</button>
-    </div>
-  </div>
+export default function NeshamotApp() {
+  const [image, setImage] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
 
-  <div id="page-views" class="page">
-    <h2 style="margin-bottom:20px; font-family:'Frank Ruhl Libre'">צפו בי לאחרונה</h2>
-    <div id="views-container"></div>
-  </div>
-</main>
-
-<div class="profile-view" id="profile-view">
-    <div class="back-btn" onclick="closeProfile()">✕</div>
-    <div class="v-header" id="v-img"></div>
-    <div class="v-body">
-        <div style="display:flex; justify-content:space-between; align-items:center">
-            <h2 id="v-name" style="font-family:'Frank Ruhl Libre'"></h2>
-            <div id="v-score" style="background:var(--gold); color:white; padding:4px 10px; border-radius:10px; font-size:12px"></div>
-        </div>
-        <p id="v-meta" style="color:#888; margin-bottom:20px"></p>
-        <div id="v-details" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:14px; background:#f9f9f9; padding:15px; border-radius:15px"></div>
-        <div id="v-bio" style="margin-top:20px; line-height:1.6"></div>
-        <div style="display:flex; gap:10px; margin-top:30px">
-            <button onclick="alert('נחסם')" style="flex:1; padding:15px; border-radius:15px; border:1px solid #ddd; background:none">חסימה</button>
-            <button onclick="alert('לייק נשלח')" style="flex:2; padding:15px; border-radius:15px; border:none; background:var(--gold); color:white; font-weight:bold">שלח/י לייק ❤️</button>
-        </div>
-    </div>
-</div>
-
-<div class="floating-chat" onclick="alert('פתיחת צ\'אט פרימיום...')">💬</div>
-
-<nav class="bottom-nav">
-  <button class="nav-item active" onclick="navigateTo('home')" id="n-home"><div class="nav-icon">🏠</div><span>בית</span></button>
-  <button class="nav-item" onclick="navigateTo('views')" id="n-views"><div class="nav-icon">👁️</div><span>צפיות</span></button>
-  <button class="nav-item" onclick="alert('בקרוב!')"><div class="nav-icon">📍</div><span>קרובים</span></button>
-  <button class="nav-item" onclick="alert('הפרופיל שלי')"><div class="nav-icon">👤</div><span>פרופיל</span></button>
-</nav>
-
-<script>
-  // דאטה מפורט (כמו ב"שבע ברכות")
-  const DATA = [
-    { id: 1, name: "מיכל", age: 24, city: "ירושלים", rel: "דתי לאומי", height: "1.65", edu: "מכון טל", zodiac: "מאזניים", bio: "מחפשת קשר רציני למטרת נישואין, בחור עובד וקובע עתים לתורה.", score: 92, emoji: "🌸", verified: true, online: true },
-    { id: 2, name: "תהילה", age: 22, city: "בני ברק", rel: "חרדי", height: "1.60", edu: "סמינר לוסטיג", zodiac: "בתולה", bio: "בחורה שמורה, אוהבת חסד, מחפשת בן תורה.", score: 87, emoji: "👸", verified: false, online: false },
-    { id: 3, name: "נועה", age: 27, city: "פתח תקווה", rel: "מסורתי", height: "1.70", edu: "אוניברסיטת בר אילן", zodiac: "גדי", bio: "אוהבת לטייל, שומרת שבת וכשרות.", score: 84, emoji: "✨", verified: true, online: true }
-  ];
-
-  function toggleDrawer() {
-    document.getElementById('drawer').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('active');
-  }
-
-  function navigateTo(p) {
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    document.getElementById('page-' + p).classList.add('active');
-    if(document.getElementById('n-' + p)) document.getElementById('n-' + p).classList.add('active');
-  }
-
-  function renderFeed() {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = DATA.map(u => `
-      <div class="user-card" onclick="viewProfile(${u.id})">
-        ${u.verified ? '<div class="verified-v">✓</div>' : ''}
-        <div class="card-img">${u.emoji}</div>
-        <div class="card-info">
-          <h3>${u.online ? '<span class="online-dot"></span>' : ''}${u.name}, ${u.age}</h3>
-          <p>📍 ${u.city} | ${u.rel}</p>
-          <div style="font-size:11px; color:var(--gold); margin-top:5px">התאמת AI: ${u.score}%</div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function viewProfile(id) {
-    const u = DATA.find(x => x.id === id);
-    const modal = document.getElementById('profile-view');
-    document.getElementById('v-img').innerText = u.emoji;
-    document.getElementById('v-name').innerText = `${u.name}, ${u.age}`;
-    document.getElementById('v-score').innerText = `תאימות: ${u.score}%`;
-    document.getElementById('v-meta').innerText = `🕍 ${u.rel} | 📍 ${u.city}`;
-    document.getElementById('v-details').innerHTML = `
-        <div><strong>גובה:</strong> ${u.height}</div>
-        <div><strong>השכלה:</strong> ${u.edu}</div>
-        <div><strong>מזל:</strong> ${u.zodiac}</div>
-        <div><strong>סטטוס:</strong> רווק/ה</div>
-    `;
-    document.getElementById('v-bio').innerText = u.bio;
-    modal.classList.add('active');
-  }
-
-  function closeProfile() { document.getElementById('profile-view').classList.remove('active'); }
-
-  function filterBy(type) {
-    const val = prompt(`סנן לפי ${type}:`);
-    if(val) {
-        const filtered = DATA.filter(u => u[type].toString().includes(val));
-        renderFeed(filtered);
-    }
-  }
-
-  window.onload = () => {
-    renderFeed();
-    // דוגמה לצפיות
-    document.getElementById('views-container').innerHTML = `
-        <div style="display:flex; align-items:center; gap:15px; background:white; padding:15px; border-radius:15px; margin-bottom:10px">
-            <div style="font-size:24px">🌸</div>
-            <div>
-                <div style="font-weight:bold">מיכל צפתה בך</div>
-                <div style="font-size:11px; color:#aaa">לפני 5 דקות</div>
-            </div>
-        </div>
-    `;
+  // סימולציה של ניתוח AI
+  const handleImageUpload = (e) => {
+    setAnalyzing(true);
+    // כאן יתבצע בעתיד הקריאה ל-API של ה-AI
+    setTimeout(() => {
+      setAnalyzing(false);
+      setAiResult(85); // ציון דוגמה
+    }, 2000);
   };
-</script>
-</body>
-                                                                                                                                                                                    </html>
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
+      {/* Header */}
+      <header className="bg-white border-b p-4 flex justify-between items-center shadow-sm">
+        <h1 className="text-2xl font-bold text-blue-800">נשמות - מוצאים חיבור אמיתי</h1>
+        <nav className="space-x-4 space-x-reverse">
+          <a href="#" className="text-gray-700">חיפוש</a>
+          <a href="#" className="text-gray-700 font-bold border-b-2 border-blue-500">הפרופיל שלי</a>
+        </nav>
+      </header>
+
+      <main className="max-w-4xl mx-auto p-6">
+        {/* אזור העלאת תמונה וניתוח AI */}
+        <section className="bg-blue-50 border-2 border-dashed border-blue-200 rounded-xl p-8 text-center mb-10">
+          <h2 className="text-xl font-semibold mb-4 text-blue-900">מנגנון התאמה חכם (AI)</h2>
+          <p className="mb-4 text-gray-600 text-sm">העלי תמונה לקבלת דירוג התאמה ושיפור חשיפה במגזר</p>
+          
+          <input 
+            type="file" 
+            onChange={handleImageUpload} 
+            className="block w-full text-sm text-gray-500 file:ml-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+          />
+
+          {analyzing && <p className="mt-4 animate-pulse text-blue-600">ה-AI שלנו מנתח כעת את התמונה...</p>}
+          {aiResult && (
+            <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-lg">
+              ציון התאמה ויזואלי: <span className="font-bold">{aiResult}%</span>
+            </div>
+          )}
+        </section>
+
+        {/* תוצאות חיפוש / התאמות */}
+        <h2 className="text-xl font-bold mb-6">התאמות שמתאימות לך:</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <UserCard name="ישראל כהן" age="26" city="ירושלים" score="92" />
+          <UserCard name="משה לוי" age="24" city="בני ברק" score="88" />
+          <UserCard name="אברהם פ." age="29" city="אלעד" score="79" />
+        </div>
+      </main>
+
+      {/* אזור תשלום (Placeholder) */}
+      <footer className="fixed bottom-0 w-full bg-white border-t p-4 flex justify-around items-center">
+        <p className="text-sm font-medium">לפתיחת כל האפשרויות והודעות ללא הגבלה:</p>
+        <button className="bg-gold-500 bg-yellow-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg">
+          שדרג למנוי פרימיום
+        </button>
+      </footer>
+    </div>
+  );
+}
