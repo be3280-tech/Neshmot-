@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>נשמות — חיבורים מהלב</title>
+  <title>נשמות — אפליקציית שידוכים</title>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --gold: #C9A84C; --navy: #1A2744; 
-      --bg-blue: #E3F2FD; /* תכלת עדין */
+      --bg-blue: #F0F7FF; /* תכלת עדין מאוד */
       --text: #2C1810; --muted: #6B5B4E; --border: rgba(201,168,76,0.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,6 +22,11 @@
     .sidebar-overlay.show { display: block; }
     .nav-item { padding: 15px 0; border-bottom: 0.5px solid #eee; cursor: pointer; color: var(--navy); font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
 
+    /* SEARCH SECTION */
+    .search-section { background: #fff; padding: 12px; border-bottom: 1px solid var(--border); }
+    .search-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .search-grid select, .search-grid input { padding: 6px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: 'Heebo'; }
+
     /* CONTENT AREA */
     .scroll-area { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 100px; }
     .section { display: none; }
@@ -29,41 +34,45 @@
 
     /* PROFILE CARDS */
     .profile-card { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 16px; position: relative; }
-    .profile-img-placeholder { height: 180px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 50px; position: relative; }
+    .profile-img-placeholder { height: 200px; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 50px; position: relative; }
     .ai-badge { position: absolute; bottom: 10px; right: 10px; background: var(--gold); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-    .profile-info { padding: 15px; }
+    .block-btn { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.4); color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; z-index: 10; }
 
-    /* UI ELEMENTS */
+    /* UI FORMS */
     .card { background: #fff; padding: 16px; border-radius: 16px; border: 0.5px solid var(--border); margin-bottom: 12px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Heebo'; }
-    .btn-primary { width: 100%; padding: 14px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    .btn-primary { width: 100%; padding: 14px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
     .btn-outline { width: 100%; padding: 10px; border: 1.5px solid var(--gold); background: none; border-radius: 10px; color: var(--gold); font-weight: bold; cursor: pointer; text-align: center; }
 
-    /* MESSAGES */
-    .message-input { display: flex; gap: 8px; margin-top: 10px; }
-    .message-input input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
-    
+    /* CHAT */
+    .chat-container { display: flex; flex-direction: column; height: 300px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
+    .chat-input-area { display: flex; gap: 8px; }
+
+    /* NAV BOTTOM */
     .bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; background: #fff; border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); }
     .bottom-nav button { flex: 1; border: none; background: transparent; padding: 15px; font-size: 12px; color: var(--muted); cursor: pointer; }
     .bottom-nav button.active { color: var(--navy); font-weight: bold; border-top: 2px solid var(--gold); }
 
-    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; }
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; pointer-events: none; }
     .toast.show { opacity: 1; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
   <div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
   <div class="sidebar" id="sidebar">
-    <h2 style="font-family: 'Frank Ruhl Libre'; color: var(--navy); margin-bottom: 15px;">תפריט</h2>
-    <div class="nav-item" onclick="showTab('likes'); toggleMenu();">❤️ לייקים שקיבלתי <span style="background:var(--gold); color:white; padding:2px 6px; border-radius:10px; font-size:10px;">3</span></div>
+    <h2 style="font-family: 'Frank Ruhl Libre'; color: var(--navy); margin-bottom: 15px;">שירות וניהול</h2>
+    <div class="nav-item" onclick="showTab('likes'); toggleMenu();">❤️ לייקים שקיבלתי <span style="background:var(--gold); color:white; padding:2px 8px; border-radius:10px; font-size:10px;">3</span></div>
     <div class="nav-item" onclick="showTab('views'); toggleMenu();">👀 מי צפה בי?</div>
     <div class="nav-item" onclick="showTab('profile'); toggleMenu();">⚙️ הגדרות חשבון</div>
-    <div class="nav-item" onclick="showTab('privacy'); toggleMenu();">🔒 פרטיות</div>
+    <div class="nav-item" onclick="showTab('privacy'); toggleMenu();">🔒 הגדרות פרטיות</div>
     <div class="nav-item" onclick="showTab('blocked'); toggleMenu();">🚫 חסומים</div>
-    <hr style="margin:15px 0; opacity:0.1;">
+    <hr style="margin: 15px 0; opacity: 0.1;">
     <div class="nav-item" style="color:red;" onclick="deleteAccount()">מחיקת חשבון</div>
   </div>
 
@@ -76,63 +85,85 @@
   <div class="scroll-area">
 
     <div id="tab-home" class="section active">
-      <div class="card" style="padding:10px; margin-bottom:15px;">
-        <input type="text" placeholder="חיפוש לפי שם או עיר..." style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+      <div class="search-section">
+        <input type="text" placeholder="חיפוש לפי שם..." style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border);">
+        <div class="search-grid">
+          <select><option>גיל</option><option>18-25</option><option>26-35</option></select>
+          <input type="text" placeholder="עיר">
+          <select><option>מצב משפחתי</option><option>רווק/ה</option><option>גרוש/ה</option><option>אלמן/ה</option></select>
+        </div>
       </div>
-      <div id="feed"></div>
+      <div id="feed" style="margin-top:15px;"></div>
     </div>
 
     <div id="tab-likes" class="section">
-      <h2 style="margin-bottom:15px;">לייקים שקיבלתי</h2>
-      <div id="likes-list">
-        <div class="card" style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:30px;">👩</div>
-          <div style="flex:1;"><strong>שירה ל.</strong><br><small>מעוניינת להכיר אותך</small></div>
-          <button class="btn-outline" style="padding:5px 10px; font-size:12px;" onclick="showTab('messages')">שלח/י הודעה</button>
+        <h2>לייקים שקיבלתי</h2>
+        <div class="card" style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+            <div style="font-size:30px;">👩</div>
+            <div style="flex:1;"><strong>מיכל א.</strong><br><small>ירושלים, בת 24</small></div>
+            <button class="btn-outline" style="padding:5px 10px;" onclick="showTab('messages')">שלח/י הודעה</button>
         </div>
-      </div>
     </div>
 
     <div id="tab-messages" class="section">
-      <h2>צ'אט</h2>
-      <div class="card">
-        <div id="chat-box" style="height:200px; overflow-y:auto; margin-bottom:10px; font-size:14px; color:var(--muted);">
-          <p>המערכת מאפשרת עד 10 הודעות חינם למנוי רגיל.</p>
+        <h2>צ'אט פעיל</h2>
+        <div class="card chat-container">
+            <div class="chat-messages" id="chat-msgs">
+                <p style="color:#999; text-align:center;">נשארו לך 10 הודעות חינם</p>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-in" placeholder="הקלד/י הודעה..." style="flex:1; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                <button onclick="sendChatMsg()" style="background:var(--navy); color:white; border:none; padding:8px 15px; border-radius:8px;">שלח</button>
+            </div>
         </div>
-        <div class="message-input">
-          <input type="text" id="msg-in" placeholder="הקלד/י הודעה...">
-          <button onclick="sendMessage()" style="background:var(--navy); color:white; border:none; padding:8px 15px; border-radius:8px;">שלח</button>
-        </div>
-      </div>
     </div>
 
     <div id="tab-profile" class="section">
       <h2 style="margin-bottom:15px;">הפרופיל שלי</h2>
+      <div class="card" style="text-align:center;">
+        <div id="p-img-box" style="width:100px; height:100px; background:#eee; border-radius:50%; margin:0 auto 10px; border:2px solid var(--gold); overflow:hidden; display:flex; align-items:center; justify-content:center;">
+          <img id="preview" style="width:100%; height:100%; object-fit:cover; display:none;">
+          <span>📷</span>
+        </div>
+        <label for="img-up" class="btn-outline" style="display:block;">העלה תמונה לניתוח AI</label>
+        <input type="file" id="img-up" style="display:none;" onchange="handleAI(event)">
+        <p id="ai-stat" style="font-size:11px; color:var(--muted); margin-top:8px;">ה-AI יבדוק צניעות ודירוג פנים</p>
+      </div>
+
       <div class="card">
         <div class="form-group"><label>שם מלא</label><input type="text" value="יוסי כהן"></div>
-        <div class="form-group"><label>מזל</label><select><option>טלה</option><option>שור</option><option>תאומים</option><option>סרטן</option><option>אריה</option><option>בתולה</option><option>מאזניים</option><option>עקרב</option><option>קשת</option><option>גדי</option><option>דלי</option><option>דגים</option></select></div>
-        <div class="form-group"><label>רמה דתית</label><select><option>חרדי</option><option>דתי לאומי</option><option>מסורתי</option><option>חוזר בתשובה</option></select></div>
-        <button class="btn-primary" onclick="showToast('נשמר!')">עדכן פרופיל</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group"><label>גיל</label><input type="number" value="26"></div>
+          <div class="form-group"><label>מגדר</label><select><option>זכר</option><option>נקבה</option></select></div>
+        </div>
+        <div class="form-group"><label>עיר</label><input type="text" value="ירושלים"></div>
+        <div class="form-group"><label>מצב משפחתי</label><select><option>רווק/ה</option><option>גרוש/ה</option><option>אלמן/ה</option></select></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group"><label>מזל</label><select><option>טלה</option><option>שור</option><option>תאומים</option><option>סרטן</option><option>אריה</option><option>בתולה</option><option>מאזניים</option><option>עקרב</option><option>קשת</option><option>גדי</option><option>דלי</option><option>דגים</option></select></div>
+          <div class="form-group"><label>רמה דתית</label><select><option>חרדי</option><option>דתי לאומי</option><option>מסורתי</option><option>חוזר בתשובה</option></select></div>
+        </div>
+        <div class="form-group"><label>קצת על עצמי</label><textarea rows="3"></textarea></div>
+        <button class="btn-primary" onclick="showToast('הפרופיל עודכן!')">שמור שינויים</button>
       </div>
     </div>
 
     <div id="tab-premium" class="section">
-      <h2 style="text-align:center; margin-bottom:20px;">שדרוג לפרימיום 💎</h2>
-      <div class="card" style="border:2px solid var(--gold); text-align:center;">
-        <h3>חבילה חודשית</h3>
-        <p style="font-size:24px; font-weight:900; color:var(--navy);">₪25</p>
-        <button class="btn-primary" style="background:var(--gold);">רכוש עכשיו</button>
-      </div>
-      <div class="card" style="text-align:center;">
-        <h3>חבילת 3 חודשים (רגיל)</h3>
-        <p style="font-size:24px; font-weight:900; color:var(--navy);">₪65</p>
-        <button class="btn-primary">רכוש עכשיו</button>
-      </div>
-      <div class="card" style="text-align:center;">
-        <h3>חבילה שנתית (משתלם)</h3>
-        <p style="font-size:24px; font-weight:900; color:var(--navy);">₪200</p>
-        <button class="btn-primary">רכוש עכשיו</button>
-      </div>
+        <h2 style="text-align:center; margin-bottom:15px;">שדרוג לפרימיום 💎</h2>
+        <div class="card" style="border:2px solid var(--gold); text-align:center;">
+            <h3>חודש אחד</h3>
+            <p style="font-size:24px; font-weight:900;">₪25</p>
+            <button class="btn-primary" style="background:var(--gold);">בחר בחבילה</button>
+        </div>
+        <div class="card" style="text-align:center;">
+            <h3>3 חודשים (רגיל)</h3>
+            <p style="font-size:24px; font-weight:900;">₪65</p>
+            <button class="btn-primary">בחר בחבילה</button>
+        </div>
+        <div class="card" style="text-align:center;">
+            <h3>שנה שלמה (משתלם)</h3>
+            <p style="font-size:24px; font-weight:900;">₪200</p>
+            <button class="btn-primary">בחר בחבילה</button>
+        </div>
     </div>
 
   </div>
@@ -140,15 +171,16 @@
   <nav class="bottom-nav">
     <button id="nav-home" class="active" onclick="showTab('home')">🏠 בית</button>
     <button id="nav-messages" onclick="showTab('messages')">💬 צ'אט</button>
+    <button id="nav-profile" onclick="showTab('profile')">👤 פרופיל</button>
     <button id="nav-premium" onclick="showTab('premium')">💎 פרימיום</button>
   </nav>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    const PROFILES = [
-      { id: 1, name: "רחל", age: 24, city: "ירושלים", rel: "חרדי", score: 8.5, emoji: "👩" },
-      { id: 2, name: "דניאל", age: 27, city: "נתניה", rel: "דתי לאומי", score: 8.0, emoji: "👨" }
+    const MOCK = [
+      { id: 1, name: "רחל", age: 24, city: "בני ברק", rel: "חרדי", score: 8.9, emoji: "👩" },
+      { id: 2, name: "דוד", age: 28, city: "ירושלים", rel: "דתי לאומי", score: 8.1, emoji: "👨" }
     ];
 
     function toggleMenu() {
@@ -163,18 +195,37 @@
       if(document.getElementById('nav-'+t)) document.getElementById('nav-'+t).classList.add('active');
     }
 
+    function handleAI(event) {
+        const file = event.target.files[0];
+        const stat = document.getElementById('ai-stat');
+        if(file) {
+            stat.innerHTML = '<span class="spinner"></span> מנתח צניעות...';
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setTimeout(() => {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('preview').style.display = 'block';
+                    stat.innerHTML = '<b style="color:green;">✅ אושר!</b> דירוג: 8.8';
+                    showToast("התמונה אושרה על ידי ה-AI");
+                }, 1500);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     function renderFeed() {
       const feed = document.getElementById('feed');
       feed.innerHTML = '';
-      PROFILES.forEach(p => {
+      MOCK.forEach(p => {
         feed.innerHTML += `
           <div class="profile-card">
+            <button class="block-btn">🚫 חסום</button>
             <div class="profile-img-placeholder">${p.emoji}<div class="ai-badge">AI: ${p.score}</div></div>
             <div class="profile-info">
               <h3>${p.name}, ${p.age}</h3>
               <p style="font-size:12px; color:var(--muted);">${p.city} • ${p.rel}</p>
               <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-outline" style="flex:1;" onclick="showToast('שלחת לייק! ❤️')">לייק</button>
+                <button class="btn-outline" style="flex:1;" onclick="showToast('לייק נשלח!')">❤️ לייק</button>
                 <button class="btn-primary" style="flex:1; margin:0;" onclick="showTab('messages')">הודעה</button>
               </div>
             </div>
@@ -183,13 +234,12 @@
       });
     }
 
-    function sendMessage() {
-      const inp = document.getElementById('msg-in');
-      if(!inp.value) return;
-      const chat = document.getElementById('chat-box');
-      chat.innerHTML += `<div style="text-align:left; margin-bottom:5px;"><strong>את/ה:</strong> ${inp.value}</div>`;
-      inp.value = '';
-      showToast("הודעה נשלחה!");
+    function sendChatMsg() {
+        const inpt = document.getElementById('chat-in');
+        if(!inpt.value) return;
+        document.getElementById('chat-msgs').innerHTML += `<p><strong>את/ה:</strong> ${inpt.value}</p>`;
+        inpt.value = '';
+        showToast("הודעה נשלחה!");
     }
 
     function showToast(m) {
