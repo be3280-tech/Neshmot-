@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="נשמות">
+  <meta name="theme-color" content="#1A2744">
+  <title>נשמות — שידוך חכם</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --gold: #C9A84C; --gold-light: #E8D5A3; --gold-dark: #8B6914;
+      --cream: #FAF7F0; --navy: #1A2744; --navy-mid: #2D3F6B;
+      --text: #2C1810; --muted: #6B5B4E;
+      --border: rgba(201,168,76,0.3); --card-bg: rgba(255,252,245,0.97);
+    }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Heebo', sans-serif; background: var(--cream); color: var(--text); display: flex; flex-direction: column; }
+
+    .top-bar { background: var(--navy); color: #fff; text-align: center; padding: 14px 16px 10px; flex-shrink: 0; }
+    .top-bar .logo { font-family: 'Frank Ruhl Libre', serif; font-size: 26px; font-weight: 900; }
+    .top-bar .logo span { color: var(--gold); }
+    .top-bar .tagline { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+    .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 100px; }
+
+    .bottom-nav { display: flex; background: #fff; border-top: 0.5px solid var(--border); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+    .bottom-nav button { flex: 1; border: none; background: transparent; padding: 10px 4px 8px; font-family: 'Heebo', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s; }
+    .bottom-nav button.active { color: var(--navy); }
+    .bottom-nav button .nav-icon { font-size: 22px; }
+    .bottom-nav button .nav-label { font-weight: 500; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+    .card { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .section-title { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+
+    .photo-upload-box { border: 1.5px dashed var(--gold); border-radius: 14px; padding: 22px 16px; text-align: center; cursor: pointer; transition: background 0.2s; position: relative; overflow: hidden; }
+    .photo-upload-box input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .photo-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold); margin: 0 auto 10px; display: block; }
+    .photo-placeholder-icon { font-size: 48px; margin-bottom: 8px; }
+    .photo-upload-box strong { display: block; font-size: 15px; color: var(--navy); margin-bottom: 4px; }
+    .photo-upload-box p { font-size: 13px; color: var(--muted); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 11px 13px; border: 0.5px solid var(--border); border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: 15px; background: #fff; color: var(--text); direction: rtl; -webkit-appearance: none; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--gold); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .btn-primary { width: 100%; padding: 15px; background: var(--navy); color: #fff; border: none; border-radius: 12px; font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .btn-primary:active { transform: scale(0.98); background: var(--navy-mid); }
+
+    /* RATING */
+    .info-banner { background: rgba(201,168,76,0.1); border: 0.5px solid var(--gold); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--gold-dark); margin-bottom: 14px; line-height: 1.5; }
+    .profile-rate-card { background: var(--card-bg); border: 1.5px solid var(--gold); border-radius: 20px; overflow: hidden; margin-bottom: 12px; position: relative; }
+    .profile-rate-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light)); }
+    .profile-photo-placeholder { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 90px; background: linear-gradient(135deg, #f5f0e8, #e8d5a3); }
+    .profile-rate-info { padding: 14px 16px; }
+    .profile-rate-name { font-family: 'Frank Ruhl Libre', serif; font-size: 22px; font-weight: 700; color: var(--navy); }
+    .profile-rate-meta { font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 14px; }
+    .rate-label { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 10px; font-weight: 500; }
+    .stars-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+    .star-btn { font-size: 28px; background: none; border: none; cursor: pointer; transition: transform 0.15s; line-height: 1; padding: 4px 2px; color: #d0c4a0; }
+    .star-btn.lit { color: var(--gold); }
+    .star-btn:active { transform: scale(1.3); }
+    .score-num-big { text-align: center; font-family: 'Frank Ruhl Libre', serif; font-size: 48px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+    .score-num-big span { font-size: 20px; color: var(--muted); }
+    .score-desc-small { text-align: center; font-size: 13px; color: var(--muted); font-style: italic; margin-bottom: 16px; min-height: 18px; }
+    .rate-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-skip { padding: 12px; background: var(--cream); border: 0.5px solid var(--border); border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; }
+    .btn-confirm { padding: 12px; background: var(--navy); color: #fff; border: none; border-radius: 10px; font-family: 'Heebo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .progress-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0d8c8; transition: background 0.3s; }
+    .dot.done { background: var(--gold); }
+    .dot.current { background: var(--navy); }
+
+    /* MATCHES */
+    .match-card { background: var(--card-bg); border: 1.5px solid var(--gold); border-radius: 16px; padding: 16px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .match-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light)); }
+    .match-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .avatar { width: 54px; height: 54px; border-radius: 50%; background: #e8d5a3; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; border: 2px solid var(--gold); }
+    .match-name { font-family: 'Frank Ruhl Libre', serif; font-size: 19px; font-weight: 700; color: var(--navy); }
+    .match-loc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .match-score-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .score-pill { background: var(--navy); color: var(--gold); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .compat-bar { flex: 1; height: 5px; background: #e8e0d0; border-radius: 3px; overflow: hidden; }
+    .compat-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.8s ease; }
+    .compat-pct { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .detail-box { background: var(--cream); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 4px; text-align: center; }
+    .detail-box .dl { font-size: 10px; color: var(--muted); display: block; margin-bottom: 2px; }
+    .detail-box .dv { font-size: 12px; font-weight: 500; color: var(--navy); }
+    .match-about { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+    .btn-contact { width: 100%; padding: 11px; border: 1.5px solid var(--gold); border-radius: 10px; background: transparent; color: var(--gold-dark); font-family: 'Heebo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-contact:active { background: var(--gold); color: #fff; }
+    .lock-box { text-align: center; padding: 14px; background: var(--cream); border-radius: 10px; border: 0.5px dashed var(--border); }
+    .lock-box p { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .btn-upgrade { padding: 9px 20px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; color: var(--muted); font-family: 'Heebo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .badge-free { background: #E8F5E9; color: #2E7D32; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+    .badge-lock { background: #FFF8E1; color: #F57F17; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+
+    /* PREMIUM */
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .price-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; position: relative; background: #fff; transition: all 0.2s; }
+    .price-card.selected { border-color: var(--navy); border-width: 2px; background: rgba(26,39,68,0.04); }
+    .price-card.popular::before { content: 'הכי פופולרי'; position: absolute; top: -11px; right: 50%; transform: translateX(50%); background: var(--gold); color: #fff; font-size: 10px; padding: 2px 10px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+    .price-card .plan-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .price-card .amount { font-family: 'Frank Ruhl Libre', serif; font-size: 30px; font-weight: 900; color: var(--navy); }
+    .price-card .period { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .price-full { grid-column: 1 / -1; }
+    .perks { font-size: 13px; color: var(--muted); line-height: 2; padding: 12px; background: var(--cream); border-radius: 10px; border: 0.5px solid var(--border); margin-bottom: 16px; }
+    .btn-gold { width: 100%; padding: 15px; background: var(--gold); color: #fff; border: none; border-radius: 12px; font-family: 'Heebo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .btn-gold:active { background: var(--gold-dark); transform: scale(0.98); }
+    .fine-print { font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; }
+
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 11px 22px; border-radius: 10px; font-size: 14px; font-family: 'Heebo', sans-serif; opacity: 0; transition: opacity 0.3s; z-index: 9999; white-space: nowrap; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    .empty-state { text-align: center; padding: 48px 16px; color: var(--muted); }
+    .empty-state .e-icon { font-size: 52px; margin-bottom: 16px; }
+    .empty-state p { font-size: 14px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">נשמ<span>ה</span>ות</div>
+  <div class="tagline">שידוך חכם לציבור הדתי ✦</div>
+</div>
+
+<div class="scroll-area">
+
+  <!-- PROFILE -->
+  <div id="tab-profile" class="section active">
+    <p class="section-title">הפרופיל שלי</p>
+    <p class="section-sub">מלא/י פרטים והעלה/י תמונה</p>
+
+    <div class="card">
+      <div class="photo-upload-box" id="upload-box">
+        <input type="file" accept="image/*" id="photo-input" onchange="handlePhoto(event)">
+        <div id="photo-placeholder-div">
+          <div class="photo-placeholder-icon">📷</div>
+          <strong>העלה/י תמונת פרופיל</strong>
+          <p>לחץ/י לבחירת תמונה מהגלריה</p>
+        </div>
+        <div id="photo-preview-div" style="display:none">
+          <img id="photo-preview" class="photo-preview" src="" alt="">
+          <strong>תמונה הועלתה ✅</strong>
+          <p style="font-size:12px;color:var(--muted)">לחץ/י להחלפה</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>שם פרטי</label>
+        <input type="text" placeholder="כגון: יוסי / מרים" id="f-name">
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>גיל</label>
+          <input type="number" placeholder="25" min="18" max="60" id="f-age">
+        </div>
+        <div class="form-group">
+          <label>מגדר</label>
+          <select id="f-gender">
+            <option value="">בחר/י</option>
+            <option value="m">זכר</option>
+            <option value="f">נקבה</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>רמת דתיות</label>
+        <select id="f-rel">
+          <option value="">בחר/י</option>
+          <option value="dl">דתי לאומי</option>
+          <option value="ch">חרדי</option>
+          <option value="chdl">חרד"לי</option>
+          <option value="mas">מסורתי דתי</option>
+          <option value="chb">חוזר/ת בתשובה</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>עיר מגורים</label>
+        <input type="text" placeholder="כגון: ירושלים, בני ברק..." id="f-city">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>השכלה</label>
+        <select id="f-edu">
+          <option value="">בחר/י</option>
+          <option value="yeshiva">ישיבה / סמינר</option>
+          <option value="college">מכללה</option>
+          <option value="uni">אוניברסיטה</option>
+          <option value="phd">תואר שלישי</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startRating()">✨ המשך לדירוג פרופילים</button>
+  </div>
+
+  <!-- RATING -->
+  <div id="tab-rate" class="section">
+    <p class="section-title">דרג/י פרופילים</p>
+    <p class="section-sub">דרג/י את המראה של פרופילים אחרים — כך האלגוריתם מוצא לך התאמה</p>
+    <div class="info-banner">⭐ הדירוג שלך על פרופילים אחרים קובע את ההתאמות שתקבל/י</div>
+    <div id="rate-card-wrap"></div>
+  </div>
+
+  <!-- MATCHES -->
+  <div id="tab-matches" class="section">
+    <p class="section-title">ההתאמות שלך</p>
+    <p class="section-sub" id="matches-sub">סיים/י לדרג פרופילים כדי לראות התאמות</p>
+    <div id="matches-list">
+      <div class="empty-state">
+        <div class="e-icon">💫</div>
+        <p>מלא/י פרופיל ודרג/י פרופילים<br>כדי לקבל התאמות מותאמות אישית</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREMIUM -->
+  <div id="tab-premium" class="section">
+    <p class="section-title">פרימיום</p>
+    <p class="section-sub">גש/י לכל ההתאמות ללא הגבלה</p>
+    <div class="card">
+      <div style="text-align:center;padding:8px 0 16px">
+        <div style="font-size:36px;margin-bottom:8px">🔐</div>
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px">שדרג/י לפרימיום</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">ההתאמה הראשונה בחינם.<br>לגישה לכל שאר ההתאמות — בחר/י מנוי:</p>
+      </div>
+      <div class="price-grid">
+        <div class="price-card selected" id="plan-month" onclick="selectPlan('month')">
+          <div class="plan-name">חודשי</div>
+          <div class="amount">₪25</div>
+          <div class="period">לחודש</div>
+        </div>
+        <div class="price-card" id="plan-3month" onclick="selectPlan('3month')">
+          <div class="plan-name">3 חודשים</div>
+          <div class="amount">₪65</div>
+          <div class="period">כל 3 חודשים</div>
+        </div>
+        <div class="price-card popular price-full" id="plan-year" onclick="selectPlan('year')">
+          <div class="plan-name">שנתי</div>
+          <div class="amount">₪200</div>
+          <div class="period">לשנה — חיסכון של 33%!</div>
+        </div>
+      </div>
+      <div class="perks">
+        ✅ גישה לכל ההתאמות<br>
+        ✅ ראה/י מי ביקר בפרופיל שלך<br>
+        ✅ פנייה ישירה בצ'אט<br>
+        ✅ תג מאומת על הפרופיל<br>
+        ✅ אלגוריתם דירוג מועדף
+      </div>
+      <button class="btn-gold" onclick="showToast('מעביר לדף תשלום מאובטח 🔐')">💛 הצטרף/י עכשיו</button>
+      <p class="fine-print">בהתאם לתנאי השימוש. ניתן לבטל בכל עת.</p>
+    </div>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <button class="active" id="nav-profile" onclick="showTab('profile')">
+    <span class="nav-icon">👤</span><span class="nav-label">פרופיל</span>
+  </button>
+  <button id="nav-rate" onclick="showTab('rate')" style="display:none">
+    <span class="nav-icon">⭐</span><span class="nav-label">דירוג</span>
+  </button>
+  <button id="nav-matches" onclick="showTab('matches')">
+    <span class="nav-icon">💞</span><span class="nav-label">התאמות</span>
+  </button>
+  <button id="nav-premium" onclick="showTab('premium')">
+    <span class="nav-icon">👑</span><span class="nav-label">פרימיום</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const RATE_PROFILES = [
+  { id:1, name:"מרים לוי", age:24, city:"ירושלים", rel:"דתי לאומי", edu:"אוניברסיטה", emoji:"👩", about:"אוהבת ספרים, בישול וגמילות חסדים. מחפשת בן זוג רציני וחם." },
+  { id:2, name:"רחל כהן", age:26, city:"רמת גן", rel:'חרד"לי', edu:"סמינר", emoji:"👩‍🦱", about:"מורה, אוהבת ציור ומוזיקה קלאסית." },
+  { id:3, name:"דבורה שפירא", age:23, city:"מודיעין עילית", rel:"חרדי", edu:"מכללה", emoji:"👩‍🦳", about:"לומדת רפואה, פעילה בחסד." },
+  { id:4, name:"אסתר מזרחי", age:27, city:"פתח תקווה", rel:"מסורתי דתי", edu:"אוניברסיטה", emoji:"👩‍🦰", about:"עובדת סוציאלית, אוהבת טבע." },
+  { id:5, name:"שרה גולדברג", age:25, city:"באר שבע", rel:"חוזרת בתשובה", edu:"מכללה", emoji:"🧕", about:"חוזרת בתשובה מזה 3 שנים, אוהבת שירה ותפילה." },
+];
+
+const scoreDescs = {
+  1:"לא מושך/ת", 2:"מתחת לממוצע", 3:"ממוצע", 4:"מראה סביר",
+  5:"נעים להסתכל", 6:"מושך/ת", 7:"יפה מאוד",
+  8:"מראה מרשים!", 9:"יפה/ה באופן יוצא דופן", 10:"מושלם — נדיר ביותר"
+};
+
+let currentIdx = 0, ratings = {}, currentStarVal = 0;
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  document.getElementById('photo-placeholder-div').style.display = 'none';
+  document.getElementById('photo-preview-div').style.display = 'block';
+  document.getElementById('photo-preview').src = url;
+  showToast('תמונה הועלתה ✅');
+}
+
+function showTab(t) {
+  ['profile','rate','matches','premium'].forEach(id => {
+    const s = document.getElementById('tab-'+id);
+    const n = document.getElementById('nav-'+id);
+    if (s) s.classList.toggle('active', id===t);
+    if (n) n.classList.toggle('active', id===t);
+  });
+  document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+function startRating() {
+  const name = document.getElementById('f-name').value.trim();
+  const age  = document.getElementById('f-age').value.trim();
+  const rel  = document.getElementById('f-rel').value;
+  const hasPhoto = document.getElementById('photo-preview-div').style.display !== 'none';
+  if (!name || !age || !rel) { showToast('אנא מלא/י את כל השדות'); return; }
+  if (!hasPhoto) { showToast('אנא העלה/י תמונת פרופיל'); return; }
+  document.getElementById('nav-rate').style.display = 'flex';
+  currentIdx = 0; ratings = {};
+  renderRateCard();
+  showTab('rate');
+}
+
+function renderRateCard() {
+  const wrap = document.getElementById('rate-card-wrap');
+  if (currentIdx >= RATE_PROFILES.length) {
+    wrap.innerHTML = `
+      <div class="card" style="text-align:center;padding:32px 16px">
+        <div style="font-size:52px;margin-bottom:16px">🎉</div>
+        <div style="font-family:'Frank Ruhl Libre',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px">הדירוג הושלם!</div>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6">האלגוריתם מחשב את ההתאמות הטובות ביותר עבורך...</p>
+        <button class="btn-primary" onclick="buildMatches()">🔍 הצג את ההתאמות שלי</button>
+      </div>`;
+    return;
+  }
+  const p = RATE_PROFILES[currentIdx];
+  currentStarVal = 0;
+  const dots = RATE_PROFILES.map((_,i) =>
+    `<div class="dot ${i<currentIdx?'done':i===currentIdx?'current':''}"></div>`
+  ).join('');
+
+  wrap.innerHTML = `
+    <div class="progress-dots">${dots}</div>
+    <div class="profile-rate-card">
+      <div class="profile-photo-placeholder">${p.emoji}</div>
+      <div class="profile-rate-info">
+        <div class="profile-rate-name">${p.name}</div>
+        <div class="profile-rate-meta">${p.age} · ${p.city} · ${p.rel} · ${p.edu}</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px">${p.about}</p>
+        <div class="rate-label">דרג/י את המראה:</div>
+        <div class="stars-row" id="stars-row">
+          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="star-btn" data-v="${n}" onclick="setStar(${n})">★</button>`).join('')}
+        </div>
+        <div class="score-num-big" id="rnum">—<span></span></div>
+        <div class="score-desc-small" id="rdesc">לחץ/י על כוכב לדירוג</div>
+        <div class="rate-actions">
+          <button class="btn-skip" onclick="nextProfile()">דלג/י ←</button>
+          <button class="btn-confirm" id="confirm-btn" onclick="confirmRating()" style="opacity:0.45" disabled>אשר/י ✓</button>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px">${currentIdx+1} מתוך ${RATE_PROFILES.length}</p>
+  `;
+}
+
+function setStar(v) {
+  currentStarVal = v;
+  document.querySelectorAll('.star-btn').forEach(s => s.classList.toggle('lit', parseInt(s.dataset.v) <= v));
+  document.getElementById('rnum').innerHTML = v + '<span>/10</span>';
+  document.getElementById('rdesc').textContent = scoreDescs[v] || '';
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+function confirmRating() {
+  if (!currentStarVal) return;
+  ratings[RATE_PROFILES[currentIdx].id] = currentStarVal;
+  nextProfile();
+}
+
+function nextProfile() {
+  currentIdx++;
+  renderRateCard();
+}
+
+function buildMatches() {
+  const matches = RATE_PROFILES.map(p => ({
+    ...p,
+    myRating: ratings[p.id] || 0,
+    compat: ratings[p.id] ? Math.min(99, 60 + ratings[p.id] * 4) : 55
+  })).sort((a,b) => b.compat - a.compat);
+
+  document.getElementById('matches-sub').textContent = 'נמצאו ' + matches.length + ' התאמות לפי הדירוגים שלך';
+  const list = document.getElementById('matches-list');
+  list.innerHTML = '';
+
+  matches.forEach((p, i) => {
+    const free = i === 0;
+    const el = document.createElement('div');
+    el.className = 'match-card';
+    el.style.cssText = 'opacity:0;transform:translateY(14px);transition:all 0.4s ease '+(i*0.12)+'s';
+    el.innerHTML = `
+      <div class="match-row">
+        <div class="avatar">${p.emoji}</div>
+        <div style="flex:1">
+          <div class="match-name">${free ? p.name : '???'}</div>
+          <div class="match-loc">${free ? p.city+' · '+p.rel : '🔒 פרטים נעולים'}</div>
+          <div class="match-score-row">
+            <span class="score-pill">דירגת: ${ratings[p.id]?ratings[p.id]+'/10':'לא דורג'}</span>
+            <div class="compat-bar"><div class="compat-fill" style="width:0%" data-w="${p.compat}%"></div></div>
+            <span class="compat-pct">${p.compat}%</span>
+          </div>
+        </div>
+        <span class="${free?'badge-free':'badge-lock'}">${free?'חינם':'🔒'}</span>
+      </div>
+      ${free ? `
+        <div class="details-grid">
+          <div class="detail-box"><span class="dl">גיל</span><span class="dv">${p.age}</span></div>
+          <div class="detail-box"><span class="dl">השכלה</span><span class="dv">${p.edu}</span></div>
+          <div class="detail-box"><span class="dl">דתיות</span><span class="dv">${p.rel}</span></div>
+        </div>
+        <p class="match-about">${p.about}</p>
+        <button class="btn-contact" onclick="showToast('הודעה נשלחה ל${p.name}! 💌')">💌 שלח/י הודעה</button>
+      ` : `
+        <div class="lock-box">
+          <p>🔒 שדרג/י לפרימיום לצפייה בפרטים המלאים</p>
+          <button class="btn-upgrade" onclick="showTab('premium')">שדרג/י לפרימיום ←</button>
+        </div>
+      `}
+    `;
+    list.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; });
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.compat-fill').forEach(e => { e.style.width = e.dataset.w; });
+  }, 500);
+
+  showTab('matches');
+  showToast('נמצאו ' + matches.length + ' התאמות! 🎉');
+}
+
+function selectPlan(p) {
+  ['month','3month','year'].forEach(id => {
+    document.getElementById('plan-'+id).classList.toggle('selected', id===p);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
